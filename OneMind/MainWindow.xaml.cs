@@ -23,6 +23,7 @@ namespace OneMind
         public MainWindow()
         {
             InitializeComponent();
+            //testcode
         }
     }
 }
