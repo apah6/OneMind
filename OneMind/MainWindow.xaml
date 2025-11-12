@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        
+        <TextBlock HorizontalAlignment="Center" Height="75" Margin="0,31,0,0" TextWrapping="Wrap" Text="One Mind" VerticalAlignment="Top" Width="142" FontSize="30"/>
+        <TextBlock HorizontalAlignment="Center" Height="54" Margin="0,106,0,0" TextAlignment="Center" TextWrapping="Wrap" Text="닉네임" Width="588" FontSize="30" VerticalAlignment="Top"/>
+        <ComboBox HorizontalAlignment="Center" Height="54" Margin="0,188,0,0" VerticalAlignment="Top" Width="588"/>
+        <Button Content="게임시작" HorizontalAlignment="Center" Height="54" Margin="0,268,0,0" VerticalAlignment="Top" Width="588" FontSize="30"/>
+        <Button Content="게임종료" HorizontalAlignment="Center" Height="54" Margin="0,348,0,0" VerticalAlignment="Top" Width="588" FontSize="30"/>
     </Grid>
 </Window>
