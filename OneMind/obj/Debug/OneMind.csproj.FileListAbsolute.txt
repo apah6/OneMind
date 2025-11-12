@@ -1,0 +1,15 @@
+C:\Kinect_Project\OneMind\OneMind\bin\Debug\OneMind.exe.config
+C:\Kinect_Project\OneMind\OneMind\bin\Debug\OneMind.exe
+C:\Kinect_Project\OneMind\OneMind\bin\Debug\OneMind.pdb
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.csproj.AssemblyReference.cache
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\MainWindow.g.cs
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\App.g.cs
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind_MarkupCompile.cache
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind_MarkupCompile.lref
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\MainWindow.baml
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.g.resources
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.Properties.Resources.resources
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.csproj.GenerateResource.cache
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.csproj.CoreCompileInputs.cache
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.exe
+C:\Kinect_Project\OneMind\OneMind\obj\Debug\OneMind.pdb
