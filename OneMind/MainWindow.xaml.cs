@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,14 +24,19 @@ namespace OneMind
         public MainWindow()
         {
             InitializeComponent();
-            //testcode
+
         }
 
-        private void StartButton_Click(object sender, RoutedEventArgs e)
+        private void StartButton_Click_1(object sender, RoutedEventArgs e)
         {
             Window1 gameWindow = new Window1(); // 새 창 객체 생성
             gameWindow.Show();                        // 새 창 띄우기
             this.Hide();
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

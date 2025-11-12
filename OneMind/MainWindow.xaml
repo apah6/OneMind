@@ -125,11 +125,14 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
-                        <Grid>
+                        <Grid x:Name="Root">
+                            <!-- 본체 테두리 -->
                             <Border x:Name="Bd" CornerRadius="12"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"/>
+
+                            <!-- 선택 텍스트 표시 -->
                             <DockPanel Margin="8,2">
                                 <ToggleButton DockPanel.Dock="Right"
                                               Focusable="False"
@@ -140,22 +143,32 @@
                                           Stretch="Uniform" Width="16" Height="10"
                                           Fill="{StaticResource TextSubBrush}"/>
                                 </ToggleButton>
+
                                 <ContentPresenter Margin="6,4"
+                                                  Content="{TemplateBinding SelectionBoxItem}"
+                                                  ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                  ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                             </DockPanel>
-                            <Popup Name="PART_Popup" Placement="Bottom"
+
+                            <!-- 드롭다운 -->
+                            <Popup x:Name="PART_Popup"
+                                   Placement="Bottom"
                                    AllowsTransparency="True"
                                    IsOpen="{TemplateBinding IsDropDownOpen}"
                                    PopupAnimation="Fade">
-                                <Border Background="#0B1220" BorderBrush="{StaticResource BorderBaseBrush}"
-                                        BorderThickness="2" CornerRadius="12" Padding="6">
+                                <Border Background="#0B1220"
+                                        BorderBrush="{StaticResource BorderBaseBrush}"
+                                        BorderThickness="2" CornerRadius="12" Padding="6"
+                                        MinWidth="{Binding PlacementTarget.ActualWidth, RelativeSource={RelativeSource AncestorType=Popup}}">
                                     <ScrollViewer CanContentScroll="True" SnapsToDevicePixels="True" MaxHeight="220">
                                         <StackPanel IsItemsHost="True"/>
                                     </ScrollViewer>
                                 </Border>
                             </Popup>
                         </Grid>
+
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="BorderBrush">
@@ -171,6 +184,8 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+
+            <!-- 드롭다운 아이템 -->
             <Setter Property="ItemContainerStyle">
                 <Setter.Value>
                     <Style TargetType="ComboBoxItem">
@@ -189,8 +204,13 @@
                                             <Setter TargetName="itemBd" Property="Background" Value="#1E293B"/>
                                         </Trigger>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="itemBd" Property="Background" Value="#263248"/>
-                                            <Setter Property="Foreground" Value="{StaticResource TextMainBrush}"/>
+                                            <Setter TargetName="itemBd" Property="Background">
+                                                <Setter.Value>
+                                                    <SolidColorBrush Color="{StaticResource PrimaryDarkColor}"/>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="Foreground" Value="White"/>
+                                            <Setter Property="FontWeight" Value="Bold"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -254,9 +274,10 @@
 
                 <StackPanel Grid.Row="6" Orientation="Vertical" HorizontalAlignment="Center" Width="560" >
                     <Button x:Name="StartButton" Content="게임 시작"
-                            Height="58" Style="{StaticResource RoundedButton}" Margin="0,0,0,12" Click="StartButton_Click"/>
+                            Height="58" Style="{StaticResource RoundedButton}" Margin="0,0,0,12"/>
                     <Button x:Name="ExitButton" Content="게임 종료"
                             Height="58" Style="{StaticResource OutlineButton}"/>
+                    
                 </StackPanel>
 
                 <TextBlock Grid.Row="8" Text="Tip: [게임 시작]을 누르면 다음 화면으로 전환됩니다."
