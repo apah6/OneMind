@@ -1,8 +1,8 @@
-.vs/
+/.vs/
 *.suo
 *.db
 *.cache
 *.lref
 *.json
-obj/
-bin/
+OneMind/obj/
+OneMind/bin/
