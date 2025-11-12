@@ -11,6 +11,7 @@ namespace OneMind
     internal class Recognize
     {
         //test
+        //umm..
         public void readKinect()
         {
 
