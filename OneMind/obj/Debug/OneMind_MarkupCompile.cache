@@ -4,11 +4,25 @@
 winexe
 C#
 .cs
+<<<<<<< HEAD
+C:\swProject\OneMind\OneMind\obj\Debug\
+=======
 C:\swproject\OneMind\OneMind\obj\Debug\
+>>>>>>> cd7a3d3b562242b140d75b8f1edcbf2956441caf
 OneMind
 none
 false
 DEBUG;TRACE
+<<<<<<< HEAD
+C:\swProject\OneMind\OneMind\App.xaml
+22080152624
+
+6-1331834086
+13-1310406943
+MainWindow.xaml;Window1.xaml;
+
+False
+=======
 C:\swproject\OneMind\OneMind\App.xaml
 1219584333
 
@@ -17,4 +31,5 @@ C:\swproject\OneMind\OneMind\App.xaml
 MainWindow.xaml;
 
 True
+>>>>>>> cd7a3d3b562242b140d75b8f1edcbf2956441caf
 
