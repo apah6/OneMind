@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="OneMind"
-        Height="700"
-        Width="935"
+        Height="750"
+        Width="1000"
         Background="Black">
 
     <Grid>
@@ -12,80 +12,81 @@
                HorizontalAlignment="Center"
                VerticalAlignment="Top"
                Margin="0,20,0,0"
-               FontSize="28"
+               FontSize="32"
                FontWeight="Bold"
                Foreground="White"
-               Background="#33000000"
-               Width="400"
-               Height="60"
+               Background="#66000000"
+               Width="500"
+               Height="70"
                HorizontalContentAlignment="Center"
-               VerticalContentAlignment="Center"/>
+               VerticalContentAlignment="Center"
+               BorderThickness="2"
+               BorderBrush="White"/>
 
         <Label x:Name="lblScore"
-               Content="점수: 0 / 10"
+               Content="점수: 0 / 0"
                HorizontalAlignment="Right"
-               Margin="0,32,40,0"
+               Margin="0,32,50,0"
                VerticalAlignment="Top"
-               FontSize="20"
+               FontSize="22"
                FontWeight="Bold"
                Foreground="Lime"/>
 
-        <Image x:Name="imgPlayer1"
-               HorizontalAlignment="Left"
-               VerticalAlignment="Top"
-               Width="320"
-               Height="318"
-               Margin="110,234,0,0"
-               Stretch="Uniform"
-               RenderOptions.BitmapScalingMode="HighQuality"/>
+        <Grid HorizontalAlignment="Left" VerticalAlignment="Top" Width="400" Height="480" Margin="60,120,0,0">
+            <Border BorderBrush="White" BorderThickness="2">
+                <Image x:Name="imgPlayer1" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Border>
+        </Grid>
 
-        <Image x:Name="imgPlayer2"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Top"
-               Width="320"
-               Height="318"
-               Margin="0,234,80,0"
-               Stretch="Uniform"
-               RenderOptions.BitmapScalingMode="HighQuality"/>
+        <Grid HorizontalAlignment="Right" VerticalAlignment="Top" Width="400" Height="480" Margin="0,120,60,0">
+            <Border BorderBrush="White" BorderThickness="2">
+                <Image x:Name="imgPlayer2" Stretch="UniformToFill" RenderOptions.BitmapScalingMode="HighQuality"/>
+            </Border>
+        </Grid>
 
         <ProgressBar x:Name="pgrTime"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Top"
-                     Margin="0,109,0,0"
-                     Width="400"
-                     Height="20"
-                     Maximum="100"
+                     Margin="0,90,0,0"
+                     Width="500"
+                     Height="25"
+                     Maximum="3"
                      Value="0"
                      Foreground="Lime"
-                     Background="#222"/>
+                     Background="#222"
+                     BorderBrush="White"
+                     BorderThickness="2"/>
 
         <Button x:Name="btnStop"
                 Content="게임 중단"
-                HorizontalAlignment="Right"
+                HorizontalAlignment="Center"
                 VerticalAlignment="Bottom"
-                Margin="0,0,80,30"
-                Width="120"
-                Height="40"
+                Margin="0,0,0,40"
+                Width="150"
+                Height="50"
                 FontWeight="Bold"
                 Background="#FF3333"
                 Foreground="White"
-                BorderThickness="0"
-                Cursor="Hand" Click="btnStop_Click"/>
+                BorderThickness="2"
+                BorderBrush="White"
+                Cursor="Hand"/>
 
         <Label x:Name="lblPerceive1"
-               Content="1번 키넥트 인식"
+               Content="화면1 준비"
                HorizontalAlignment="Left"
-               Margin="208,184,0,0"
+               Margin="60,610,0,0"
                VerticalAlignment="Top"
-               Foreground="White"
-               FontWeight="Bold"/>
+               FontSize="18"
+               FontWeight="Bold"
+               Foreground="Yellow"/>
 
         <Label x:Name="lblPerceive2"
-               Content="2번 키넥트 인식"
+               Content="화면2 준비"
                HorizontalAlignment="Right"
-               Margin="0,184,200,0"
+               Margin="0,610,60,0"
                VerticalAlignment="Top"
-               Foreground="White"
-               FontWeight="Bold"/>
+               FontSize="18"
+               FontWeight="Bold"
+               Foreground="Yellow"/>
     </Grid>
 </Window>
