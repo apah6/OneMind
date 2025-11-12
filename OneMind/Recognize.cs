@@ -14,6 +14,7 @@ namespace OneMind
         //umm..
         public void readKinect()
         {
+            //vdsdsdsd
 
         }
         
