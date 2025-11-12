@@ -70,7 +70,7 @@
                 Background="#FF3333"
                 Foreground="White"
                 BorderThickness="0"
-                Cursor="Hand"/>
+                Cursor="Hand" Click="btnStop_Click"/>
 
         <Label x:Name="lblPerceive1"
                Content="1번 키넥트 인식"

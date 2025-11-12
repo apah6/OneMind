@@ -25,5 +25,7 @@ namespace OneMind
             InitializeComponent();
             //testcode
         }
+
+        
     }
 }

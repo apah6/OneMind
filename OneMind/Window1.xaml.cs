@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
+
 namespace OneMind
 {
     /// <summary>
@@ -22,6 +23,11 @@ namespace OneMind
         public Window1()
         {
             InitializeComponent();
+        }
+
+        private void btnStop_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
