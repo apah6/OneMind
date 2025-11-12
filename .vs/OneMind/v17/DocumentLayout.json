@@ -1,10 +1,22 @@
 {
   "Version": 1,
+<<<<<<< HEAD
   "WorkspaceRootPath": "C:\\swProject\\OneMind\\",
   "Documents": [
     {
       "AbsoluteMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|c:\\swproject\\onemind\\onemind\\window1.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|solutionrelative:onemind\\window1.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+=======
+  "WorkspaceRootPath": "C:\\swproject\\OneMind\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|C:\\swproject\\OneMind\\onemind\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|solutionrelative:onemind\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|c:\\swproject\\onemind\\onemind\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D991868D-A9FF-4C08-8774-D594911B3C21}|OneMind\\OneMind.csproj|solutionrelative:onemind\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> cd7a3d3b562242b140d75b8f1edcbf2956441caf
     }
   ],
   "DocumentGroupContainers": [
@@ -13,6 +25,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
+<<<<<<< HEAD
           "DockedHeight": 343,
           "SelectedChildIndex": 1,
           "Children": [
@@ -30,6 +43,34 @@
               "RelativeToolTip": "OneMind\\Window1.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-11-08T08:12:52.559Z",
+=======
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\swproject\\OneMind\\OneMind\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "OneMind\\MainWindow.xaml",
+              "ToolTip": "C:\\swproject\\OneMind\\OneMind\\MainWindow.xaml",
+              "RelativeToolTip": "OneMind\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-11-06T03:55:58.797Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\swproject\\OneMind\\OneMind\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "OneMind\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\swproject\\OneMind\\OneMind\\MainWindow.xaml.cs",
+              "RelativeToolTip": "OneMind\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABMAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-06T03:55:58.149Z",
+>>>>>>> cd7a3d3b562242b140d75b8f1edcbf2956441caf
               "EditorCaption": ""
             }
           ]
