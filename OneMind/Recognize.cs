@@ -12,6 +12,7 @@ namespace OneMind
     {
         //test
         //umm..
+        //hmm..
         public void readKinect()
         {
 
