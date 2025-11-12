@@ -1,0 +1,8 @@
+.vs/
+*.suo
+*.db
+*.cache
+*.lref
+*.json
+obj/
+bin/
