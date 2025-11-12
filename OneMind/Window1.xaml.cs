@@ -45,8 +45,8 @@ namespace OneMind
         {
             if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
             {
-                MessageBox.Show("Kinect 센서를 찾을 수 없습니다."); 
-                Close(); // 창 닫기
+                MessageBox.Show("Kinect 센서를 찾을 수 없습니다.");
+                // Close(); // 창 닫기
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace OneMind
 
         protected override void OnClosed(EventArgs e)
         {
-            base.OnClosed(e); // 기본 닫기 동작 호출
+            //base.OnClosed(e); // 기본 닫기 동작 호출
 
             if (_kinect != null) // Kinect 센서가 존재하면
             {
