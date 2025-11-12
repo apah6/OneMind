@@ -1,5 +1,4 @@
-﻿using Microsoft.Kinect;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.Kinect;
 using System.Windows.Threading;
 
 namespace OneMind
@@ -45,12 +45,11 @@ namespace OneMind
         {
             if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
             {
-                MessageBox.Show("Kinect 센서를 찾을 수 없습니다.");
-                // Close(); // 창 닫기
+                MessageBox.Show("Kinect 센서를 찾을 수 없습니다."); 
                 return;
             }
 
-            _kinect = KinectSensor.KinectSensors[0];
+            _kinect = KinectSensor.KinectSensors[0]; 
 
             _kinect.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30); // 컬러 스트림 활성화
             _kinect.DepthStream.Enable(DepthImageFormat.Resolution640x480Fps30); // 깊이 스트림 활성화
@@ -81,7 +80,7 @@ namespace OneMind
             _gameRunning = true; // 게임 진행 시작
             _timeLeft = 3; // 타이머 초기화
             pgrTime.Maximum = 3; // 프로그레스바 최대값 설정 (3초)
-            pgrTime.Value = 0; // 프로그레스바 초기값 설정
+            pgrTime.Value = 0; // 프로그레스바 초기값 설정 (0초)
             lblKeyword.Content = "게임 시작!";  // 게임 시작 메시지 표시
             _timer.Start();    // 타이머 시작
         }
@@ -156,7 +155,10 @@ namespace OneMind
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            _timer?.Stop(); // 타이머 중지
+            if (_timer != null && _timer.IsEnabled)
+            {
+                _timer.Stop(); // 타이머 중지
+            }
             _gameRunning = false; // 게임 종료
             _timerStarted = false; // 타이머 시작 플래그 초기화
             lblKeyword.Content = "게임이 중단되었습니다.";
@@ -164,7 +166,6 @@ namespace OneMind
 
         protected override void OnClosed(EventArgs e)
         {
-            //base.OnClosed(e); // 기본 닫기 동작 호출
 
             if (_kinect != null) // Kinect 센서가 존재하면
             {
@@ -173,7 +174,10 @@ namespace OneMind
                 _kinect = null; // Kinect 객체 해제
             }
 
-            _timer?.Stop(); // 타이머 중지
+            if (_timer != null && _timer.IsEnabled)
+            {
+                _timer.Stop(); // 타이머 중지    
+            }
         }
     }
 }

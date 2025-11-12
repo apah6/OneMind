@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="OneMind"
-        Height="750"
-        Width="1000"
+        Height="805"
+        Width="1050"
         WindowStartupLocation="CenterScreen"
         Background="#0A0E1A">
 
@@ -25,7 +25,7 @@
                           Opacity="0.6"/>
     </Window.Resources>
 
-    <Grid>
+    <Grid Margin="0,0,0,34">
         <Grid.Background>
             <RadialGradientBrush>
                 <GradientStop Color="#0A0E1A" Offset="0"/>
@@ -42,6 +42,7 @@
                 Width="550" 
                 Height="90" 
                 Margin="0,25,0,0"
+                Panel.ZIndex="10"
                 Effect="{StaticResource NeonGlow}">
             <Border.BorderBrush>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -61,7 +62,7 @@
                        Opacity="0.7"/>
 
                 <Label x:Name="lblKeyword"
-                       Content="준비중..."
+                       Content="제시어 준비중..."
                        HorizontalContentAlignment="Center"
                        VerticalContentAlignment="Center"
                        Margin="0,15,0,0"
@@ -72,43 +73,42 @@
             </Grid>
         </Border>
 
-        <Grid HorizontalAlignment="Center"
-              VerticalAlignment="Top"
-              Margin="0,130,0,0"
-              Width="550"
-              Height="50">
-            <Border Background="#0F1322"
-                    BorderBrush="#00FF88"
-                    BorderThickness="2"
-                    CornerRadius="15"
-                    Height="45"
-                    Padding="5">
-                <Grid>
-                    <ProgressBar x:Name="pgrTime"
-                                 Maximum="3"
-                                 Value="0"
-                                 Background="Transparent"
-                                 BorderThickness="0"
-                                 Height="35"
-                                 Margin="2">
-                        <ProgressBar.Foreground>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#00FF88" Offset="0"/>
-                                <GradientStop Color="#00FFFF" Offset="1"/>
-                            </LinearGradientBrush>
-                        </ProgressBar.Foreground>
-                    </ProgressBar>
+        <Border Background="#0F1322"
+                BorderBrush="#00FF88"
+                BorderThickness="2"
+                CornerRadius="15"
+                Height="45"
+                Width="550"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,130,0,0"
+                Panel.ZIndex="10"
+                Padding="5">
+            <Grid>
+                <ProgressBar x:Name="pgrTime"
+                             Maximum="3"
+                             Value="0"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Height="35"
+                             Margin="2">
+                    <ProgressBar.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#00FF88" Offset="0"/>
+                            <GradientStop Color="#00FFFF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </ProgressBar.Foreground>
+                </ProgressBar>
 
-                    <Label Content="⏱️ TIME"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontSize="14"
-                           FontWeight="Bold"
-                           Foreground="White"
-                           Opacity="0.9"/>
-                </Grid>
-            </Border>
-        </Grid>
+                <Label Content="⏱️ TIME"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       Opacity="0.9"/>
+            </Grid>
+        </Border>
 
         <Border Background="#1A1F30"
                 BorderBrush="#00FF88"
@@ -118,13 +118,14 @@
                 VerticalAlignment="Top"
                 Margin="0,35,40,0"
                 Padding="20,8"
+                Panel.ZIndex="10"
                 Effect="{StaticResource LimeGlow}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="점수 " 
-                       FontSize="20" 
-                       VerticalAlignment="Center"
-                       Margin="0,0,8,0"
-                       Foreground="#00FF88"/>
+                           FontSize="20" 
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"
+                           Foreground="#00FF88"/>
                 <Label x:Name="lblScore"
                        Content="0 / 0"
                        FontSize="24"
@@ -134,107 +135,182 @@
             </StackPanel>
         </Border>
 
-        <Grid HorizontalAlignment="Left" 
-              VerticalAlignment="Top" 
-              Width="420" 
-              Height="460" 
-              Margin="50,200,0,0">
-            <Border Background="#1A1F30"
-                    BorderBrush="#00FFFF"
-                    BorderThickness="2"
-                    CornerRadius="10"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Top"
-                    Margin="0,-15,0,0"
-                    Padding="20,5"
-                    Panel.ZIndex="1">
-                <TextBlock Text="👤 PLAYER 1" 
-                           FontSize="16" 
-                           FontWeight="Bold"
-                           Foreground="#00FFFF"/>
-            </Border>
+        <Button x:Name="btnStop"
+                Content="⏹ 게임 중단" 
+                Width="150"
+                Height="50"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="40,35,0,0"
+                Panel.ZIndex="10"
+                FontSize="16"
+                FontWeight="Bold"
+                Foreground="White"
+                Cursor="Hand"
+                Background="Transparent"
+                BorderThickness="0"
+                Click="btnStop_Click">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="border"
+                            CornerRadius="25"
+                            BorderThickness="3"
+                            SnapsToDevicePixels="True">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#FF2244" Offset="0"/>
+                                <GradientStop Color="#CC1133" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#FF6688" Offset="0"/>
+                                <GradientStop Color="#FF3366" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.BorderBrush>
+                        <ContentPresenter HorizontalAlignment="Center" 
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="Effect" Value="{StaticResource RedGlow}"/>
+                            <Setter TargetName="border" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#FF3366" Offset="0"/>
+                                        <GradientStop Color="#EE1144" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="border" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#CC1133" Offset="0"/>
+                                        <GradientStop Color="#AA0022" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="border" Property="Background" Value="#333344"/>
+                            <Setter TargetName="border" Property="BorderBrush" Value="#555566"/>
+                            <Setter TargetName="border" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
 
-            <Border BorderThickness="3" 
-                    CornerRadius="20"
-                    Background="#0F1322"
-                    Effect="{StaticResource NeonGlow}">
-                <Border.BorderBrush>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#00FFFF" Offset="0"/>
-                        <GradientStop Color="#0088FF" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.BorderBrush>
-
-                <Grid>
-                    <Image x:Name="imgPlayer1" 
-                           Stretch="UniformToFill" 
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           Margin="3"/>
-                    <Border Background="#00FFFF" 
-                            Opacity="0.05" 
-                            CornerRadius="17"/>
-                </Grid>
-            </Border>
-        </Grid>
-
-        <Grid HorizontalAlignment="Right" 
-              VerticalAlignment="Top" 
-              Width="420" 
-              Height="460" 
-              Margin="0,200,50,0">
-            <Border Background="#1A1F30"
-                    BorderBrush="#FF00AA"
-                    BorderThickness="2"
-                    CornerRadius="10"
-                    HorizontalAlignment="Center"
-                    VerticalAlignment="Top"
-                    Margin="0,-15,0,0"
-                    Padding="20,5"
-                    Panel.ZIndex="1">
-                <TextBlock Text="👤 PLAYER 2" 
-                           FontSize="16" 
-                           FontWeight="Bold"
-                           Foreground="#FF00AA"/>
-            </Border>
-
-            <Border BorderThickness="3" 
-                    CornerRadius="20"
-                    Background="#0F1322"
-                    Effect="{StaticResource NeonGlow}">
-                <Border.BorderBrush>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#FF00AA" Offset="0"/>
-                        <GradientStop Color="#AA00FF" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.BorderBrush>
-
-                <Grid>
-                    <Image x:Name="imgPlayer2" 
-                           Stretch="UniformToFill" 
-                           RenderOptions.BitmapScalingMode="HighQuality"
-                           Margin="3"/>
-                    <Border Background="#FF00AA" 
-                            Opacity="0.05" 
-                            CornerRadius="17"/>
-                </Grid>
-            </Border>
-        </Grid>
-
-
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="50,0,50,40">
+        <Grid HorizontalAlignment="Center" 
+              VerticalAlignment="Top"
+              Width="900"
+              Margin="0,206,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="420" />
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="420" />
             </Grid.ColumnDefinitions>
 
+            <Grid Grid.Column="0">
+                <Border Background="#1A1F30"
+                        BorderBrush="#00FFFF"
+                        BorderThickness="2"
+                        CornerRadius="10"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Margin="0,-15,0,0"
+                        Padding="20,5"
+                        Panel.ZIndex="1">
+                    <TextBlock Text="👤 PLAYER 1" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Foreground="#00FFFF"/>
+                </Border>
+
+                <Border BorderThickness="3" 
+                        CornerRadius="20"
+                        Background="#0F1322"
+                        Height="460"
+                        Effect="{StaticResource NeonGlow}">
+                    <Border.BorderBrush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#00FFFF" Offset="0"/>
+                            <GradientStop Color="#0088FF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.BorderBrush>
+
+                    <Grid>
+                        <Image x:Name="imgPlayer1" 
+                               Stretch="UniformToFill" 
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Margin="3"/>
+                        <Border Background="#00FFFF" 
+                                Opacity="0.05" 
+                                CornerRadius="17"/>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Border Background="#1A1F30"
+                        BorderBrush="#FF00AA"
+                        BorderThickness="2"
+                        CornerRadius="10"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Top"
+                        Margin="0,-15,0,0"
+                        Padding="20,5"
+                        Panel.ZIndex="1">
+                    <TextBlock Text="👤 PLAYER 2" 
+                               FontSize="16" 
+                               FontWeight="Bold"
+                               Foreground="#FF00AA"/>
+                </Border>
+
+                <Border BorderThickness="3" 
+                        CornerRadius="20"
+                        Background="#0F1322"
+                        Height="460"
+                        Effect="{StaticResource NeonGlow}">
+                    <Border.BorderBrush>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#FF00AA" Offset="0"/>
+                            <GradientStop Color="#AA00FF" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.BorderBrush>
+
+                    <Grid>
+                        <Image x:Name="imgPlayer2" 
+                               Stretch="UniformToFill" 
+                               RenderOptions.BitmapScalingMode="HighQuality"
+                               Margin="3"/>
+                        <Border Background="#FF00AA" 
+                                Opacity="0.05" 
+                                CornerRadius="17"/>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+        
+        <Grid HorizontalAlignment="Center" 
+              VerticalAlignment="Top" 
+              Margin="0,673,0,0"
+              Panel.ZIndex="10"
+              Width="900">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="420" />
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="420" />
+            </Grid.ColumnDefinitions>
+            
             <Border Background="#1A1F30"
                     BorderBrush="#00FFFF"
                     BorderThickness="2"
                     CornerRadius="12"
                     Padding="15,8"
-                    Width="420"
-                    HorizontalAlignment="Left">
+                    Grid.Column="0">
                 <Label x:Name="lblPerceive1"
                        Content="화면1 준비"
                        HorizontalContentAlignment="Center"
@@ -243,75 +319,11 @@
                        Foreground="#00FFFF"/>
             </Border>
 
-            <Button x:Name="btnStop"
-                    Content="⏹ 게임 중단" 
-                    Height="55"
-                    FontSize="18"
-                    FontWeight="Bold"
-                    Foreground="White"
-                    Cursor="Hand"
-                    Background="Transparent"
-                    BorderThickness="0" Margin="-25,-590,295,590">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                CornerRadius="27"
-                                BorderThickness="3"
-                                SnapsToDevicePixels="True">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Color="#FF2244" Offset="0"/>
-                                    <GradientStop Color="#CC1133" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF6688" Offset="0"/>
-                                    <GradientStop Color="#FF3366" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
-                            <ContentPresenter HorizontalAlignment="Center" 
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Effect" Value="{StaticResource RedGlow}"/>
-                                <Setter TargetName="border" Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#FF3366" Offset="0"/>
-                                            <GradientStop Color="#EE1144" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                            <GradientStop Color="#CC1133" Offset="0"/>
-                                            <GradientStop Color="#AA0022" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="border" Property="Background" Value="#333344"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#555566"/>
-                                <Setter TargetName="border" Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-
             <Border Background="#1A1F30"
                     BorderBrush="#FF00AA"
                     BorderThickness="2"
                     CornerRadius="12"
                     Padding="15,8"
-                    Width="420"
-                    HorizontalAlignment="Right"
                     Grid.Column="2">
                 <Label x:Name="lblPerceive2"
                        Content="화면2 준비"
@@ -321,5 +333,6 @@
                        Foreground="#FF00AA"/>
             </Border>
         </Grid>
+
     </Grid>
 </Window>
