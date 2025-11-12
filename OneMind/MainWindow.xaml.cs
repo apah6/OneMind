@@ -26,6 +26,11 @@ namespace OneMind
             //testcode
         }
 
-        
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
+            Window1 gameWindow = new Window1(); // 새 창 객체 생성
+            gameWindow.Show();                        // 새 창 띄우기
+            this.Hide();
+        }
     }
 }
