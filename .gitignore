@@ -5,8 +5,4 @@
 *.lref
 *.json
 obj/
-<<<<<<< HEAD
 bin/
-=======
-bin/
->>>>>>> e9bfb65dd8a971044f4649324ee73e8f579929ba
