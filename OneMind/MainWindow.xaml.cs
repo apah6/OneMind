@@ -28,8 +28,11 @@ namespace OneMind
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            Window1 gameWindow = new Window1(); // 새 창 객체 생성
-            gameWindow.Show();                  // 새 창 띄우기
+            // Recognize 인스턴스를 메인에서 생성해서 Window1에 주입(전달)
+            Recognize recognizer = new Recognize();
+
+            Window1 gameWindow = new Window1(recognizer); // 생성자 주입
+            gameWindow.Show();
             this.Hide();                        // 메인창 숨기기
         }
 
@@ -37,10 +40,5 @@ namespace OneMind
         {
             base.Close(); // 메인 창 닫기
         }
-
-        //private void ExitButton_Click(object sender, RoutedEventArgs e)
-        //{
-
-        //}
     }
 }

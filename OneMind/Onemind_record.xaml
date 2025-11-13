@@ -6,38 +6,106 @@
         xmlns:local="clr-namespace:OneMind"
         mc:Ignorable="d"
         Title="Onemind_record" Height="450" Width="800">
-    <Grid Background="Black">
-        <TextBlock 
-        HorizontalAlignment="Center" 
-        Margin="0,27,0,0" 
-        TextWrapping="Wrap" 
-        Text="게임결과" 
-        VerticalAlignment="Top" 
-        FontSize="30"                      
-        Foreground="White"                 
-        FontWeight="Bold"/>
-
-        <TextBlock
-        HorizontalAlignment="Center" 
-        TextWrapping="Wrap" 
-        Text="TextBlock" 
-        VerticalAlignment="Top" 
-        Height="270" 
-        Width="616" 
-        Margin="0,85,0,0"
-        x:Name="ResultDisplayTextBlock"
-            Background="White"/>
-
-        <Button 
-        Content="돌아가기" 
-        HorizontalAlignment="Left" 
-        Margin="608,363,0,0" 
-        VerticalAlignment="Top" 
-        Click="Button_Click"
-        Background="#FF8A2BE2"           
-        Foreground="White"                
-        FontSize="14"                     
-        Width="100" Height="30"/>
-
+    <Grid Background="#0A0A0A"> <TextBlock
+            HorizontalAlignment="Center"
+            Margin="0,40,0,0"
+            Text="게임 결과"
+            VerticalAlignment="Top"
+            FontSize="40"
+            Foreground="#E0E0FF" FontWeight="Bold"
+            FontFamily="Segoe UI" />
+        
+        <Border
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top"
+            Width="640"
+            Height="270"  Margin="0,110,0,0"
+            CornerRadius="15" 
+            Background="#18FFFFFF"  BorderBrush="#40FFFFFF" 
+            BorderThickness="1">
+            
+            <Border.Effect>
+                <DropShadowEffect 
+                    ShadowDepth="0" 
+                    Color="White" 
+                    Opacity="0.15" 
+                    BlurRadius="15"/>
+            </Border.Effect>
+            
+            <DataGrid
+                x:Name="ResultDataGrid"
+                AutoGenerateColumns="True"
+                IsReadOnly="True"
+                Margin="10,10,10,10"
+                HeadersVisibility="Column"
+                GridLinesVisibility="None"
+                Background="Transparent"
+                BorderThickness="0"
+                RowHeaderWidth="0"
+                Foreground="#E0E0FF">
+                
+                <DataGrid.Resources>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
+                        <Setter Property="Foreground" Value="#C0C0FF"/>
+                    </Style>
+                    <Style TargetType="{x:Type DataGridRow}">
+                        <Setter Property="Background" Value="Transparent"/>
+                    </Style>
+                    <Style TargetType="{x:Type DataGridCell}">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="10,5,10,5"/>
+                    </Style>
+                </DataGrid.Resources>
+            </DataGrid>
+        </Border>
+        
+        <Button
+            Content="돌아가기"
+            HorizontalAlignment="Left"
+            Margin="590,390,0,0" 
+            VerticalAlignment="Top"
+            Click="Button_Click"
+            FontSize="16"
+            Width="120"
+            Height="35"
+            FontWeight="SemiBold"
+            Background="#8A2BE2" Foreground="White"
+            BorderThickness="0">
+            
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="5"
+                                        Padding="{TemplateBinding Padding}">
+                                    <Border.Effect>
+                                        <DropShadowEffect 
+                                            ShadowDepth="0" 
+                                            Color="#8A2BE2" 
+                                            Opacity="0.7" 
+                                            BlurRadius="15"/> </Border.Effect>
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#A55EE8"/>
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect ShadowDepth="0" Color="#A55EE8" Opacity="1.0" BlurRadius="25"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        
     </Grid>
 </Window>
