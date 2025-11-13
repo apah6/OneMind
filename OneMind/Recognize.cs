@@ -8,6 +8,7 @@ using System.Windows.Media.Imaging;
 
 public class Recognize
 {
+    // 키넥트
     private KinectSensor kinectsensor;
 
     // Color 스트림용
@@ -26,7 +27,7 @@ public class Recognize
     public WriteableBitmap ColorBitmap => colorBitmap;
     public WriteableBitmap DepthBitmap => depthBitmap;
 
-    //플레이어 백터 데이터
+    //플레이어 데이터
     public Player players;
 
     public Recognize()
