@@ -17,6 +17,9 @@ public class Recognize
     private short[] depthPixels;
     private byte[] depthColorPixels;
 
+    // Skeleton 스트림용
+    public Skeleton[] Skeletons { get; private set; }
+
     public KinectSensor Sensor => kinectsensor;
     public WriteableBitmap ColorBitmap => colorBitmap;
     public WriteableBitmap DepthBitmap => depthBitmap;
@@ -62,8 +65,11 @@ public class Recognize
                 null);
             kinectsensor.DepthFrameReady += KinectSensor_DepthFrameReady;
 
-            // Skeleton 스트림 활성화
+            // Skeleton 스트림
             kinectsensor.SkeletonStream.Enable();
+            kinectsensor.SkeletonFrameReady += KinectSensor_SkeletonFrameReady;
+
+            Skeletons = new Skeleton[kinectsensor.SkeletonStream.FrameSkeletonArrayLength];
 
             // Kinect 시작
             kinectsensor.Start();
@@ -123,6 +129,15 @@ public class Recognize
                     frame.Width * 4,
                     0);
             });
+        }
+    }
+
+    private void KinectSensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+    {
+        using (SkeletonFrame frame = e.OpenSkeletonFrame())
+        {
+            if (frame == null) return;
+            frame.CopySkeletonDataTo(Skeletons);
         }
     }
 
