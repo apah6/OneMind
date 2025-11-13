@@ -236,21 +236,11 @@
                     <ComboBoxItem>직업</ComboBoxItem>
                 </ComboBox>
 
-                <!-- 버튼 -->
-                <StackPanel Grid.Row="10"
-                            Orientation="Vertical"
-                            HorizontalAlignment="Center"
-                            Width="560">
-                    <Button x:Name="StartButton"
-                            Content="게임 시작"
-                            Height="58"
-                            Style="{StaticResource RoundedButton}"
-                            Margin="0,0,0,12"/>
-
-                    <Button x:Name="ExitButton"
-                            Content="게임 종료"
-                            Height="58"
-                            Style="{StaticResource OutlineButton}"/>
+                <StackPanel Grid.Row="6" Orientation="Vertical" HorizontalAlignment="Center" Width="560" >
+                    <Button x:Name="StartButton" Content="게임 시작"
+                            Height="58" Style="{StaticResource RoundedButton}" Margin="0,0,0,12" Click="StartButton_Click"/>
+                    <Button x:Name="ExitButton" Content="게임 종료"
+                            Height="58" Style="{StaticResource OutlineButton}" Click="ExitButton_Click"/>
                 </StackPanel>
 
                 <TextBlock Grid.Row="12"
