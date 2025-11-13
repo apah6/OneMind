@@ -1,7 +1,5 @@
-﻿using Microsoft.Kinect;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +23,7 @@ namespace OneMind
         public MainWindow()
         {
             InitializeComponent();
-
+            //testcode
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
