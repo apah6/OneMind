@@ -19,10 +19,11 @@ public class Recognize //사용할때 Recognize recog = new Recognize();
 
     private void InitializeKinect()
     {
-        try
+        /*try
         {
             //vdsdsdsd
-        }
+        }*/
+    }
 
     public void CloseKinect()
     {
