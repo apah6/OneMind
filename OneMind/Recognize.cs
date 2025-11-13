@@ -18,7 +18,7 @@ public class Recognize
     private byte[] depthColorPixels;
 
     // Skeleton 스트림용
-    public Skeleton[] Skeletons { get; private set; }
+    public Skeleton[] Skeletons;
 
     public KinectSensor Sensor => kinectsensor;
     public WriteableBitmap ColorBitmap => colorBitmap;
@@ -153,6 +153,7 @@ public class Recognize
                 // 이벤트 해제 → 메모리 누수 방지
                 kinectsensor.ColorFrameReady -= KinectSensor_ColorFrameReady;
                 kinectsensor.DepthFrameReady -= KinectSensor_DepthFrameReady;
+                kinectsensor.SkeletonFrameReady -= KinectSensor_SkeletonFrameReady;
 
                 kinectsensor = null;
             }
