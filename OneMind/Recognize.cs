@@ -22,6 +22,7 @@ public class Recognize //사용할때 Recognize recog = new Recognize();
         try
         {
             //vdsdsdsd
+        }
 
     public void CloseKinect()
     {
