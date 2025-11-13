@@ -22,10 +22,29 @@ namespace OneMind
         private bool _gameRunning = false;
         private bool _timerStarted = false;
 
+        // 전달받은 Recognize 인스턴스(있으면 이를 사용)
+        private Recognize _recognizer;
+
         public Window1()
         {
             InitializeComponent();
             InitializeKinect();
+            InitializeTimer();
+        }
+
+        public Window1(Recognize recognizer)
+        {
+            InitializeComponent();
+            _recognizer = recognizer;
+
+            // Recognize가 제공한 비트맵을 UI에 연결
+            if (_recognizer != null)
+            {
+                // 필요에 따라 ColorBitmap / DepthBitmap 을 적절히 연결
+                imgPlayer1.Source = _recognizer.ColorBitmap;
+                imgPlayer2.Source = _recognizer.DepthBitmap;
+            }
+
             InitializeTimer();
         }
 

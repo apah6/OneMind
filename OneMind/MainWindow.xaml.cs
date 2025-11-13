@@ -28,21 +28,11 @@ namespace OneMind
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            //Kinect 센서가 연결되어 있는지 확인
-            //if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
-            //{
-            //    MessageBox.Show("Kinect 센서를 찾을 수 없습니다.");
-            //    return; // 창 생성 안 함
-            //}
+            // Recognize 인스턴스를 메인에서 생성해서 Window1에 주입(전달)
+            Recognize recognizer = new Recognize();
 
-            if (string.IsNullOrWhiteSpace(NicknameBox.Text))
-            {
-                MessageBox.Show("닉네임을 입력하세요!", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;  // 진행 중단
-            }
-
-            Window1 gameWindow = new Window1(); // 새 창 객체 생성
-            gameWindow.Show();                  // 새 창 띄우기
+            Window1 gameWindow = new Window1(recognizer); // 생성자 주입
+            gameWindow.Show();
             this.Hide();                        // 메인창 숨기기
         }
 
