@@ -1,5 +1,7 @@
 ﻿using Microsoft.Kinect;
+using OneMind;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -18,15 +20,19 @@ public class Recognize
     private byte[] depthColorPixels;
 
     // Skeleton 스트림용
-    public Skeleton[] Skeletons;
+    public Skeleton[] Skeletons { get; private set; }
 
     public KinectSensor Sensor => kinectsensor;
     public WriteableBitmap ColorBitmap => colorBitmap;
     public WriteableBitmap DepthBitmap => depthBitmap;
 
+    //플레이어 백터 데이터
+    public Player players;
+
     public Recognize()
     {
         InitializeKinect();
+        players = new Player();
     }
 
     private void InitializeKinect()
@@ -137,7 +143,22 @@ public class Recognize
         using (SkeletonFrame frame = e.OpenSkeletonFrame())
         {
             if (frame == null) return;
+
+            // Skeleton 배열이 없거나 크기가 다르면 새로 할당
+            if (Skeletons == null || Skeletons.Length != frame.SkeletonArrayLength)
+                Skeletons = new Skeleton[frame.SkeletonArrayLength];
+
+            // 현재 프레임의 스켈레톤 데이터 복사
             frame.CopySkeletonDataTo(Skeletons);
+
+            // Tracked 상태의 스켈레톤만 가져오기
+            var trackedSkeletons = Skeletons
+                .Where(s => s.TrackingState == SkeletonTrackingState.Tracked)
+                .Take(2) // 최대 2명만
+                .ToList();
+
+            // 플레이어 데이터 업데이트
+            players.Update(trackedSkeletons.ToArray());
         }
     }
 
@@ -162,5 +183,11 @@ public class Recognize
         {
             MessageBox.Show("Kinect 종료 중 오류: " + ex.Message);
         }
+    }
+
+    //인식된 스켈레톤 갯수
+    public int CountSkeletons()
+    {
+        return Skeletons.Length;
     }
 }
