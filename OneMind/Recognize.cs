@@ -190,4 +190,14 @@ public class Recognize
     {
         return Skeletons.Length;
     }
+
+    //스켈레톤 1번, 스켈레톤 2번이 존재하는가?
+    public bool IsPlayer1Detected()
+    {
+        return players.Player1 != null;
+    }
+    public bool IsPlayer2Detected()
+    {
+        return players.Player2 != null;
+    }
 }
