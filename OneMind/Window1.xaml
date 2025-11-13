@@ -293,7 +293,7 @@
                 </Border>
             </Grid>
         </Grid>
-        
+
         <Grid HorizontalAlignment="Center" 
               VerticalAlignment="Top" 
               Margin="0,673,0,0"
@@ -304,7 +304,7 @@
                 <ColumnDefinition Width="60" />
                 <ColumnDefinition Width="420" />
             </Grid.ColumnDefinitions>
-            
+
             <Border Background="#1A1F30"
                     BorderBrush="#00FFFF"
                     BorderThickness="2"
@@ -312,7 +312,7 @@
                     Padding="15,8"
                     Grid.Column="0">
                 <Label x:Name="lblPerceive1"
-                       Content="화면1 준비"
+                       Content="PLAYER1 화면 준비"
                        HorizontalContentAlignment="Center"
                        FontSize="16"
                        FontWeight="Bold"
@@ -326,13 +326,12 @@
                     Padding="15,8"
                     Grid.Column="2">
                 <Label x:Name="lblPerceive2"
-                       Content="화면2 준비"
+                       Content="PLAYER2 화면 준비"
                        HorizontalContentAlignment="Center"
                        FontSize="16"
                        FontWeight="Bold"
                        Foreground="#FF00AA"/>
             </Border>
         </Grid>
-
     </Grid>
 </Window>

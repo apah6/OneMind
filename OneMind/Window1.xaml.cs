@@ -45,9 +45,12 @@ namespace OneMind
         {
             if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
             {
-                MessageBox.Show("Kinect 센서를 찾을 수 없습니다."); 
+                MessageBox.Show("Kinect 연결을 확인하세요.");
+               // this.Close(); // 창 닫기 (Kinect 없으면 게임 불가) 일단 주석
                 return;
             }
+
+           
 
             _kinect = KinectSensor.KinectSensors[0]; 
 
@@ -75,33 +78,47 @@ namespace OneMind
             _timer.Tick += Timer_Tick; // Timer_Tick 이벤트 핸들러 등록
         }
 
-        private void StartGame()
+        private void StartGame(Boolean isResume = false)
         {
-            _gameRunning = true; // 게임 진행 시작
-            _timeLeft = 3; // 타이머 초기화
-            pgrTime.Maximum = 3; // 프로그레스바 최대값 설정 (3초)
-            pgrTime.Value = 0; // 프로그레스바 초기값 설정 (0초)
-            lblKeyword.Content = "게임 시작!";  // 게임 시작 메시지 표시
-            _timer.Start();    // 타이머 시작
+            _gameRunning = true; // 게임 진행 상태 설정
+
+            if (!isResume) // 새 게임일 때만 시간 초기화
+            {
+                _timeLeft = 3; // 남은 시간 초기화
+                pgrTime.Value = 0; // 프로그레스바 초기화
+                lblKeyword.Content = "게임 시작!";
+            }
+            else // 게임 재개 시
+            {
+                lblKeyword.Content = $"게임 재개! 남은 시간: {_timeLeft}초"; // 남은 시간 표시
+                pgrTime.Value = 3 - _timeLeft; // 프로그레스바 업데이트
+            }
+
+            pgrTime.Maximum = 3; // 프로그레스바 최대값 설정
+            _timer.Start(); // 타이머 시작
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (!_gameRunning) // 게임이 진행 중이 아니면 반환
+            if (!_gameRunning) // 게임이 진행 중이 아니면
             {
                 return;
             }
 
-            _timeLeft--; // 남은 시간 1씩 감소
-            pgrTime.Value = 3 - _timeLeft; // 프로그레스바 업데이트
-            lblKeyword.Content = $"남은 시간: {_timeLeft}초"; // 남은 시간 표시
+            //  게임이 진행 중이면 시간 감소
+            _timeLeft--;
+            pgrTime.Value = 3 - _timeLeft;
+            lblKeyword.Content = $"남은 시간: {_timeLeft}초";
 
             if (_timeLeft <= 0) // 시간이 다 되었으면
             {
-                _timer.Stop(); //   타이머 중지
+                _timer.Stop(); // 타이머 중지
                 lblKeyword.Content = "시간 종료!";
                 _gameRunning = false; // 게임 종료
                 _timerStarted = false; // 타이머 시작 플래그 초기화
+
+
+               
             }
         }
 
@@ -143,12 +160,21 @@ namespace OneMind
 
                 lblPerceive1.Content = player1Detected ? "Player1 인식됨" : "대기 중..."; // 사람 1 인식 상태 업데이트
                 lblPerceive2.Content = player2Detected ? "Player2 인식됨" : "대기 중..."; // 사람 2 인식 상태 업데이트
-
-                // 두 사람 모두 인식되면 게임 시작
-                if (!_timerStarted && player1Detected && player2Detected)
+                if (player1Detected && player2Detected) // 두 사람 모두 인식되면
                 {
-                    _timerStarted = true; // 타이머 시작 플래그 설정
-                    StartGame(); // 게임 시작
+                    if (!_timerStarted) // 타이머가 시작되지 않았으면
+                    {
+                        _timerStarted = true; // 타이머 시작 플래그 설정
+
+                        if (!_gameRunning) // 게임이 일시정지 상태면 재개
+                        {
+                            StartGame(isResume: true);
+                        }
+                        else // 게임이 시작 전이면 새 게임
+                        {
+                            StartGame(isResume: false);
+                        }
+                    }
                 }
             }
         }
