@@ -10,12 +10,12 @@ namespace OneMind
 {
     public partial class Window1 : Window
     {
-        private KinectSensor _kinect; // Kinect 센서
-        private byte[] _colorPixels; // 컬러 데이터
-        private short[] _depthPixels; // 깊이 데이터
+        private KinectSensor _kinect;         // Kinect 센서
+        private byte[] _colorPixels;           // 컬러 데이터
+        private short[] _depthPixels;          // 깊이 데이터
 
-        private WriteableBitmap _bitmap1; // 사람1 비트맵
-        private WriteableBitmap _bitmap2; // 사람2 비트맵
+        private WriteableBitmap _bitmap1;      // Player1 비트맵
+        private WriteableBitmap _bitmap2;      // Player2 비트맵
 
         private DispatcherTimer _timer;
         private int _timeLeft = 3;
@@ -46,8 +46,10 @@ namespace OneMind
             _colorPixels = new byte[_kinect.ColorStream.FramePixelDataLength];
             _depthPixels = new short[_kinect.DepthStream.FramePixelDataLength];
 
-            _bitmap1 = new WriteableBitmap(_kinect.ColorStream.FrameWidth, _kinect.ColorStream.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
-            _bitmap2 = new WriteableBitmap(_kinect.ColorStream.FrameWidth, _kinect.ColorStream.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+            _bitmap1 = new WriteableBitmap(_kinect.ColorStream.FrameWidth,
+                                           _kinect.ColorStream.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
+            _bitmap2 = new WriteableBitmap(_kinect.ColorStream.FrameWidth,
+                                           _kinect.ColorStream.FrameHeight, 96, 96, PixelFormats.Bgra32, null);
 
             imgPlayer1.Source = _bitmap1;
             imgPlayer2.Source = _bitmap2;
@@ -102,22 +104,45 @@ namespace OneMind
 
         private void Kinect_AllFramesReady(object sender, AllFramesReadyEventArgs e)
         {
+            byte[] colorPixelsCopy = null;
+
+            // 1. 컬러 프레임
             using (ColorImageFrame colorFrame = e.OpenColorImageFrame())
+            {
+                if (colorFrame != null)
+                {
+                    colorFrame.CopyPixelDataTo(_colorPixels);
+
+                    // RGB → BGRA 변환
+                    colorPixelsCopy = new byte[_colorPixels.Length / 3 * 4];
+                    for (int i = 0, j = 0; i < _colorPixels.Length; i += 3, j += 4)
+                    {
+                        colorPixelsCopy[j] = _colorPixels[i + 2];     // B
+                        colorPixelsCopy[j + 1] = _colorPixels[i + 1]; // G
+                        colorPixelsCopy[j + 2] = _colorPixels[i];     // R
+                        colorPixelsCopy[j + 3] = 255;                 // A
+                    }
+                }
+            }
+
+            if (colorPixelsCopy == null)
+            {
+                return;
+            }
+
+            // 2. 스켈레톤 프레임
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
-                if (colorFrame == null || skeletonFrame == null) return;
-
-                colorFrame.CopyPixelDataTo(_colorPixels);
+                if (skeletonFrame == null) return;
 
                 Skeleton[] skeletons = new Skeleton[skeletonFrame.SkeletonArrayLength];
                 skeletonFrame.CopySkeletonDataTo(skeletons);
 
-                byte[] pixels1 = new byte[_colorPixels.Length];
-                byte[] pixels2 = new byte[_colorPixels.Length];
+                byte[] pixels1 = new byte[colorPixelsCopy.Length];
+                byte[] pixels2 = new byte[colorPixelsCopy.Length];
 
                 bool player1Detected = false;
                 bool player2Detected = false;
-
                 int trackedCount = 0;
 
                 foreach (Skeleton skeleton in skeletons)
@@ -149,7 +174,7 @@ namespace OneMind
                     }
                     else
                     {
-                        break; // 2명 이상이면 무시
+                        break; // 2명 이상 무시
                     }
 
                     for (int y = minY; y <= maxY; y++)
@@ -157,32 +182,32 @@ namespace OneMind
                         for (int x = minX; x <= maxX; x++)
                         {
                             int idx = (y * _bitmap1.PixelWidth + x) * 4;
-                            Buffer.BlockCopy(_colorPixels, idx, targetPixels, idx, 4);
+                            Buffer.BlockCopy(colorPixelsCopy, idx, targetPixels, idx, 4);
                         }
                     }
 
                     trackedCount++;
                 }
 
-                // 만약 플레이어가 1명뿐이면 Player2 화면은 검은색으로 초기화
                 if (!player2Detected)
                     Array.Clear(pixels2, 0, pixels2.Length);
 
-                // 비트맵 업데이트
-                _bitmap1.WritePixels(new Int32Rect(0, 0, _bitmap1.PixelWidth, _bitmap1.PixelHeight), pixels1, _bitmap1.PixelWidth * 4, 0);
-                _bitmap2.WritePixels(new Int32Rect(0, 0, _bitmap2.PixelWidth, _bitmap2.PixelHeight), pixels2, _bitmap2.PixelWidth * 4, 0);
+                _bitmap1.WritePixels(new Int32Rect(0, 0, _bitmap1.PixelWidth, _bitmap1.PixelHeight),
+                                     pixels1, _bitmap1.PixelWidth * 4, 0);
+                _bitmap2.WritePixels(new Int32Rect(0, 0, _bitmap2.PixelWidth, _bitmap2.PixelHeight),
+                                     pixels2, _bitmap2.PixelWidth * 4, 0);
 
-                // 인식 상태 표시
                 lblPerceive1.Content = player1Detected ? "Player1 인식됨" : "대기 중...";
                 lblPerceive2.Content = player2Detected ? "Player2 인식됨" : "대기 중...";
 
                 // 타이머 시작
-                if (!_timerStarted && (player1Detected || player2Detected))
+                if (!_timerStarted && player1Detected && player2Detected)
                 {
                     _timerStarted = true;
                     StartGame(false);
                 }
             }
+            
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
