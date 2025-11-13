@@ -1,23 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.Kinect;
+using System;
+using System.Windows;
 
-using Microsoft.Kinect;
+public class Recognize //사용할때 Recognize recog = new Recognize();
 
-namespace OneMind
 {
-    internal class Recognize
+    private KinectSensor kinectsensor;
+
+    public KinectSensor Sensor //사용할때 KinectSensor sensor = recog.Sensor;
     {
-        //test
-        //umm..
-        public void readKinect()
+        get { return kinectsensor; }
+    }
+
+    public Recognize()
+    {
+        InitializeKinect();
+    }
+
+    private void InitializeKinect()
+    {
+        try
         {
             //vdsdsdsd
 
+    public void CloseKinect()
+    {
+        if (kinectsensor != null && kinectsensor.IsRunning)
+        {
+            kinectsensor.Stop();
         }
-        
     }
 
 }
