@@ -1,17 +1,25 @@
 ﻿using Microsoft.Kinect;
 using System;
-using System.Linq;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
-public class Recognize //사용할때 Recognize recog = new Recognize();
-
+public class Recognize
 {
     private KinectSensor kinectsensor;
 
-    public KinectSensor Sensor //사용할때 KinectSensor sensor = recog.Sensor;
-    {
-        get { return kinectsensor; }
-    }
+    // Color 스트림용
+    private WriteableBitmap colorBitmap;
+    private byte[] colorPixels;
+
+    // Depth 스트림용
+    private WriteableBitmap depthBitmap;
+    private short[] depthPixels;
+    private byte[] depthColorPixels;
+
+    public KinectSensor Sensor => kinectsensor;
+    public WriteableBitmap ColorBitmap => colorBitmap;
+    public WriteableBitmap DepthBitmap => depthBitmap;
 
     public Recognize()
     {
@@ -22,30 +30,121 @@ public class Recognize //사용할때 Recognize recog = new Recognize();
     {
         try
         {
-            kinectsensor = KinectSensor.KinectSensors.FirstOrDefault(s => s.Status == KinectStatus.Connected);
+            // Kinect 연결 체크
+            if (KinectSensor.KinectSensors.Count == 0)
+            {
+                MessageBox.Show("Kinect 센서를 찾을 수 없습니다.");
+                return;
+            }
 
-            if (kinectsensor != null)
-            {
-                kinectsensor.Start();
-                MessageBox.Show("Kinect 연결 성공!");
-            }
-            else
-            {
-                MessageBox.Show("Kinect를 찾을 수 없습니다.");
-            }
+            kinectsensor = KinectSensor.KinectSensors[0];
+
+            // Color 스트림 활성화
+            kinectsensor.ColorStream.Enable(ColorImageFormat.RgbResolution640x480Fps30);
+            colorPixels = new byte[kinectsensor.ColorStream.FramePixelDataLength];
+            colorBitmap = new WriteableBitmap(
+                kinectsensor.ColorStream.FrameWidth,
+                kinectsensor.ColorStream.FrameHeight,
+                96.0, 96.0,
+                PixelFormats.Bgr32,
+                null);
+            kinectsensor.ColorFrameReady += KinectSensor_ColorFrameReady;
+
+            // Depth 스트림 활성화
+            kinectsensor.DepthStream.Enable(DepthImageFormat.Resolution320x240Fps30);
+            depthPixels = new short[kinectsensor.DepthStream.FramePixelDataLength];
+            depthColorPixels = new byte[kinectsensor.DepthStream.FramePixelDataLength * 4]; // BGR32
+            depthBitmap = new WriteableBitmap(
+                kinectsensor.DepthStream.FrameWidth,
+                kinectsensor.DepthStream.FrameHeight,
+                96.0, 96.0,
+                PixelFormats.Bgr32,
+                null);
+            kinectsensor.DepthFrameReady += KinectSensor_DepthFrameReady;
+
+            // Skeleton 스트림 활성화
+            kinectsensor.SkeletonStream.Enable();
+
+            // Kinect 시작
+            kinectsensor.Start();
+            MessageBox.Show("Kinect 초기화 완료!");
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Kinect 초기화 중 오류 발생: " + ex.Message);
+            MessageBox.Show("Kinect 초기화 중 오류: " + ex.Message);
+        }
+    }
+
+    private void KinectSensor_ColorFrameReady(object sender, ColorImageFrameReadyEventArgs e)
+    {
+        using (ColorImageFrame frame = e.OpenColorImageFrame())
+        {
+            if (frame == null) return;
+
+            frame.CopyPixelDataTo(colorPixels);
+
+            // UI 스레드 안전하게 업데이트
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                colorBitmap.WritePixels(
+                    new Int32Rect(0, 0, frame.Width, frame.Height),
+                    colorPixels,
+                    frame.Width * sizeof(int),
+                    0);
+            });
+        }
+    }
+
+    private void KinectSensor_DepthFrameReady(object sender, DepthImageFrameReadyEventArgs e)
+    {
+        using (DepthImageFrame frame = e.OpenDepthImageFrame())
+        {
+            if (frame == null) return;
+
+            frame.CopyPixelDataTo(depthPixels);
+
+            for (int i = 0; i < depthPixels.Length; i++)
+            {
+                short depth = depthPixels[i];
+                byte intensity = (byte)(depth >= frame.MinDepth && depth <= frame.MaxDepth ? depth % 256 : 0);
+
+                depthColorPixels[i * 4 + 0] = intensity; // B
+                depthColorPixels[i * 4 + 1] = intensity; // G
+                depthColorPixels[i * 4 + 2] = intensity; // R
+                depthColorPixels[i * 4 + 3] = 255;       // A
+            }
+
+            // UI 스레드 안전하게 업데이트
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                depthBitmap.WritePixels(
+                    new Int32Rect(0, 0, frame.Width, frame.Height),
+                    depthColorPixels,
+                    frame.Width * 4,
+                    0);
+            });
         }
     }
 
     public void CloseKinect()
     {
-        if (kinectsensor != null && kinectsensor.IsRunning)
+        try
         {
-            kinectsensor.Stop();
+            if (kinectsensor != null)
+            {
+                if (kinectsensor.IsRunning)
+                    kinectsensor.Stop();
+
+                // 이벤트 해제 → 메모리 누수 방지
+                kinectsensor.ColorFrameReady -= KinectSensor_ColorFrameReady;
+                kinectsensor.DepthFrameReady -= KinectSensor_DepthFrameReady;
+
+                kinectsensor = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Kinect 종료 중 오류: " + ex.Message);
         }
     }
-
 }
