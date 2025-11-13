@@ -9,6 +9,7 @@ namespace OneMind
     public partial class Window1 : Window
     {
         private DispatcherTimer _timer;
+        private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
         private int _timeLeft = 3;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
@@ -18,6 +19,7 @@ namespace OneMind
         public Window1(Recognize recognizer)
         {
             InitializeComponent();
+            InitializeDetectionCheck();
 
             _recognizer = recognizer;
 
@@ -29,11 +31,36 @@ namespace OneMind
 
 
 
-                _recognizer.Skeletons = new Skeleton[_recognizer.Sensor.SkeletonStream.FrameSkeletonArrayLength];
+                //_recognizer.Skeletons = new Skeleton[_recognizer.Sensor.SkeletonStream.FrameSkeletonArrayLength];
 
             }
 
             InitializeTimer();
+        }
+
+        private void InitializeDetectionCheck()
+        {
+            _detectTimer = new DispatcherTimer();
+            _detectTimer.Interval = TimeSpan.FromMilliseconds(500); 
+            _detectTimer.Tick += CheckPlayersDetected;
+            _detectTimer.Start();
+        }
+
+        private void CheckPlayersDetected(object sender, EventArgs e)
+        {
+            bool player1 = _recognizer.IsPlayer1Detected();
+            bool player2 = _recognizer.IsPlayer2Detected();
+
+            lblPerceive1.Content = player1 ? "Player1 인식됨" : "대기 중...";
+            lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중...";
+
+            // 두 명 모두 인식되면 게임 시작
+            if (!_timerStarted && player1 && player2)
+            {
+                _timerStarted = true;
+                StartGame(false);
+            }
+
         }
 
         private void InitializeTimer()
@@ -80,7 +107,7 @@ namespace OneMind
             }
         }
 
-        
+
         //private void Sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         //{
         //    using (SkeletonFrame frame = e.OpenSkeletonFrame())
@@ -104,11 +131,11 @@ namespace OneMind
         //            trackedCount++;
         //        }
 
-        //        // UI 업데이트
-        //        lblPerceive1.Dispatcher.Invoke(() =>
-        //            lblPerceive1.Content = player1Detected ? "Player1 인식됨" : "대기 중...");
+        //// UI 업데이트
+        //lblPerceive1.Dispatcher.Invoke(() =>
+        //            lblPerceive1.Content = player1Detected? "Player1 인식됨" : "대기 중...");
         //        lblPerceive2.Dispatcher.Invoke(() =>
-        //            lblPerceive2.Content = player2Detected ? "Player2 인식됨" : "대기 중...");
+        //            lblPerceive2.Content = player2Detected? "Player2 인식됨" : "대기 중...");
 
         //        // 두 명 감지 시 타이머 시작
         //        if (!_timerStarted && player1Detected && player2Detected)
