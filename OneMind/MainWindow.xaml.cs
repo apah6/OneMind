@@ -1,6 +1,7 @@
 ﻿using Microsoft.Kinect;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,10 +25,10 @@ namespace OneMind
         public MainWindow()
         {
             InitializeComponent();
-            //testcode
+
         }
 
-        private void StartButton_Click(object sender, RoutedEventArgs e)
+        private void StartButton_Click_1(object sender, RoutedEventArgs e)
         {
             // Kinect 센서가 연결되어 있는지 확인 (일단 주석)
             //if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
@@ -44,6 +45,11 @@ namespace OneMind
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
             base.Close(); // 메인 창 닫기
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
