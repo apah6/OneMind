@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Threading;
-using Microsoft.Kinect;
-using System.Windows.Media.Imaging;
+
 
 namespace OneMind
 {
@@ -13,6 +12,7 @@ namespace OneMind
         private int _timeLeft = 3;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
+
 
         private Recognize _recognizer;
 
@@ -29,19 +29,15 @@ namespace OneMind
                 imgPlayer1.Source = _recognizer.ColorBitmap;
                 imgPlayer2.Source = _recognizer.ColorBitmap;
 
-
-
-                //_recognizer.Skeletons = new Skeleton[_recognizer.Sensor.SkeletonStream.FrameSkeletonArrayLength];
-
             }
 
             InitializeTimer();
         }
-
+    
         private void InitializeDetectionCheck()
         {
             _detectTimer = new DispatcherTimer();
-            _detectTimer.Interval = TimeSpan.FromMilliseconds(500); 
+            _detectTimer.Interval = TimeSpan.FromMilliseconds(500); // 0.5초마다 인식여부 체크
             _detectTimer.Tick += CheckPlayersDetected;
             _detectTimer.Start();
         }
@@ -104,47 +100,19 @@ namespace OneMind
                 lblKeyword.Content = "시간 종료!";
                 _gameRunning = false;
                 _timerStarted = false;
+
+                GoToRecordWindow(); // 자동으로 기록 창으로 이동
             }
         }
 
+        private void GoToRecordWindow()
+        {
+            Onemind_record record = new Onemind_record();
 
-        //private void Sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        //{
-        //    using (SkeletonFrame frame = e.OpenSkeletonFrame())
-        //    {
-        //        if (frame == null) return;
-
-        //        Skeleton[] skeletons = new Skeleton[frame.SkeletonArrayLength];
-        //        frame.CopySkeletonDataTo(skeletons);
-
-        //        bool player1Detected = false;
-        //        bool player2Detected = false;
-        //        int trackedCount = 0;
-
-        //        foreach (Skeleton skeleton in skeletons)
-        //        {
-        //            if (skeleton.TrackingState != SkeletonTrackingState.Tracked) continue;
-
-        //            if (trackedCount == 0) player1Detected = true;
-        //            else if (trackedCount == 1) player2Detected = true;
-
-        //            trackedCount++;
-        //        }
-
-        //// UI 업데이트
-        //lblPerceive1.Dispatcher.Invoke(() =>
-        //            lblPerceive1.Content = player1Detected? "Player1 인식됨" : "대기 중...");
-        //        lblPerceive2.Dispatcher.Invoke(() =>
-        //            lblPerceive2.Content = player2Detected? "Player2 인식됨" : "대기 중...");
-
-        //        // 두 명 감지 시 타이머 시작
-        //        if (!_timerStarted && player1Detected && player2Detected)
-        //        {
-        //            _timerStarted = true;
-        //            StartGame(false);
-        //        }
-        //    }
-        //}
+            record.Show();
+            this.Close();  // 현재 Window1 닫기
+        }
+   
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
@@ -153,18 +121,11 @@ namespace OneMind
 
             _gameRunning = false;
             _timerStarted = false;
-            lblKeyword.Content = "게임이 중단되었습니다.";
+
+            GoToRecordWindow(); // 기록 창으로 이동
+
         }
+    
 
-        //protected override void OnClosed(EventArgs e)
-        //{
-        //    if (_recognizer?.Sensor != null)
-        //    {
-        //        _recognizer.Sensor.SkeletonFrameReady -= Sensor_SkeletonFrameReady;
-        //    }
-
-        //    if (_timer != null && _timer.IsEnabled)
-        //        _timer.Stop();
-        //}
     }
 }

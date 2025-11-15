@@ -1,7 +1,7 @@
 ﻿<Window x:Class="OneMind.Window1"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="OneMind"
+        Title="One Mind"
         Height="805"
         Width="1050"
         WindowStartupLocation="CenterScreen"
