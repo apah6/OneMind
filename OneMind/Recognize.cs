@@ -31,10 +31,13 @@ public class Recognize
     //플레이어 데이터
     public Player players;
 
+    // players 접근 동기화용 락
+    private readonly object _playersLock = new object();
+
     public Recognize()
     {
-        InitializeKinect();
         players = new Player();
+        InitializeKinect();
     }
 
     private void InitializeKinect()
@@ -153,14 +156,17 @@ public class Recognize
             // 현재 프레임의 스켈레톤 데이터 복사
             frame.CopySkeletonDataTo(Skeletons);
 
-            // Tracked 상태의 스켈레톤만 가져오기
+            // Tracked 상태의 스켈레톤만 가져오기 (null 체크 추가)
             var trackedSkeletons = Skeletons
-                .Where(s => s.TrackingState == SkeletonTrackingState.Tracked)
+                .Where(s => s != null && s.TrackingState == SkeletonTrackingState.Tracked)
                 .Take(2) // 최대 2명만
-                .ToList();
+                .ToArray();
 
-            // 플레이어 데이터 업데이트
-            players.Update(trackedSkeletons.ToArray());
+            // 플레이어 데이터 업데이트 (동기화)
+            lock (_playersLock)
+            {
+                players.Update(trackedSkeletons);
+            }
         }
     }
 
@@ -190,39 +196,49 @@ public class Recognize
     //인식된 스켈레톤 갯수
     public int CountSkeletons()
     {
-        return Skeletons.Length;
+        return Skeletons?.Length ?? 0;
     }
 
     //스켈레톤 1번, 스켈레톤 2번이 존재하는가?
     public bool IsPlayer1Detected()
     {
-        return players.Player1 != null;
+        lock (_playersLock) return players.Player1 != null;
     }
     public bool IsPlayer2Detected()
     {
-        return players.Player2 != null;
+        lock (_playersLock) return players.Player2 != null;
     }
 
     public bool ComparePlayers()
     {
-        double similarity = 0;
-
-        for (int i = 0; i < players.Player1Vector.Length; i++)
+        lock (_playersLock)
         {
-            similarity += CosineSimilarity(players.Player1Vector[i], players.Player2Vector[i]);
-        }
+            var v1 = players.Player1Vector;
+            var v2 = players.Player2Vector;
 
-        similarity /= players.Player1Vector.Length;
+            if (v1 == null || v2 == null) return false;
+            if (v1.Length != v2.Length) return false;
 
-        if (similarity >= 0.65)
-        {
-            return true;
+            double sum = 0;
+            int validCount = 0;
+
+            for (int i = 0; i < v1.Length; i++)
+            {
+                var a = v1[i];
+                var b = v2[i];
+
+                // 유효성 판단: 길이 0이면 무시
+                if (a.Length == 0 || b.Length == 0) continue;
+
+                sum += CosineSimilarity(a, b);
+                validCount++;
+            }
+
+            if (validCount == 0) return false;
+
+            double similarity = sum / validCount;
+            return similarity >= 0.65;
         }
-        else
-        {
-            return false;
-        }
-        
     }
 
     double CosineSimilarity(Vector3D a, Vector3D b)
