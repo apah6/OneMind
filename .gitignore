@@ -6,3 +6,4 @@
 *.json
 OneMind/obj/
 OneMind/bin/
+/OneMind/Window1.xaml.cs
