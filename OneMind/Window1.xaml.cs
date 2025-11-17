@@ -12,6 +12,8 @@ namespace OneMind
         private int _timeLeft = 3;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
+        private int _currentQuestion = 0; // 현재 문제 번호
+        private int _maxQuestions = 10; // 최대 문제 수  
 
 
         private Recognize _recognizer;
@@ -101,7 +103,8 @@ namespace OneMind
                 _gameRunning = false;
                 _timerStarted = false;
 
-               //GoToRecordWindow(); // 자동으로 기록 창으로 이동
+                FinishQuestion(); // 문제 하나 끝났다고 처리
+
             }
         }
 
@@ -126,6 +129,19 @@ namespace OneMind
 
         }
 
+        private void FinishQuestion()
+        {
+            _currentQuestion++;
+
+            if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
+            {
+                GoToRecordWindow(); // 기록 창으로 이동
+                return;
+            }
+
+            //// 다음 문제 로딩
+            //LoadNextQuestion();
+        }
 
     }
 }
