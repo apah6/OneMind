@@ -12,6 +12,8 @@ namespace OneMind
         private int _timeLeft = 3;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
+        private int _currentQuestion = 0; // 현재 문제 번호
+        private int _maxQuestions = 10; // 최대 문제 수  
 
 
         private Recognize _recognizer;
@@ -33,7 +35,7 @@ namespace OneMind
 
             InitializeTimer();
         }
-    
+
         private void InitializeDetectionCheck()
         {
             _detectTimer = new DispatcherTimer();
@@ -101,39 +103,19 @@ namespace OneMind
                 _gameRunning = false;
                 _timerStarted = false;
 
-                GoToRecordWindow(); // 자동으로 기록 창으로 이동
+                FinishQuestion(); // 문제 하나 끝났다고 처리
+
             }
         }
 
-        
-        //private void Sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
-        //{
-        //    using (SkeletonFrame frame = e.OpenSkeletonFrame())
-        //    {
-        //        if (frame == null) return;
+        private void GoToRecordWindow()
+        {
+            Onemind_record record = new Onemind_record();
 
-        //        Skeleton[] skeletons = new Skeleton[frame.SkeletonArrayLength];
-        //        frame.CopySkeletonDataTo(skeletons);
+            record.Show();
+            this.Close();  // 현재 Window1 닫기
+        }
 
-        //        bool player1Detected = false;
-        //        bool player2Detected = false;
-        //        int trackedCount = 0;
-
-        //        foreach (Skeleton skeleton in skeletons)
-        //        {
-        //            if (skeleton.TrackingState != SkeletonTrackingState.Tracked) continue;
-
-        //            if (trackedCount == 0) player1Detected = true;
-        //            else if (trackedCount == 1) player2Detected = true;
-
-        //            trackedCount++;
-        //        }
-
-        //        // UI 업데이트
-        //        lblPerceive1.Dispatcher.Invoke(() =>
-        //            lblPerceive1.Content = player1Detected ? "Player1 인식됨" : "대기 중...");
-        //        lblPerceive2.Dispatcher.Invoke(() =>
-        //            lblPerceive2.Content = player2Detected ? "Player2 인식됨" : "대기 중...");
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
@@ -146,7 +128,20 @@ namespace OneMind
             GoToRecordWindow(); // 기록 창으로 이동
 
         }
-    
+
+        private void FinishQuestion()
+        {
+            _currentQuestion++;
+
+            if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
+            {
+                GoToRecordWindow(); // 기록 창으로 이동
+                return;
+            }
+
+            //// 다음 문제 로딩
+            //LoadNextQuestion();
+        }
 
     }
 }
