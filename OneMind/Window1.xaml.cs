@@ -103,7 +103,7 @@ namespace OneMind
                 _gameRunning = false;
                 _timerStarted = false;
 
-                FinishQuestion(); // 문제 하나 끝났다고 처리
+                FinishQuestion(); // 문제 끝났다고 처리
 
             }
         }
@@ -139,9 +139,13 @@ namespace OneMind
                 return;
             }
 
-            //// 다음 문제 로딩
-            //LoadNextQuestion();
+            // 다음 문제 로딩
+            LoadNextQuestion();
         }
 
+        private void LoadNextQuestion() // DB 연결 필요
+        {
+            throw new NotImplementedException();
+        }
     }
 }
