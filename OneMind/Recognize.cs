@@ -214,7 +214,7 @@ public class Recognize
 
         similarity /= players.Player1Vector.Length;
 
-        if (similarity > 0.65)
+        if (similarity >= 0.65)
         {
             return true;
         }
@@ -222,7 +222,7 @@ public class Recognize
         {
             return false;
         }
-
+        
     }
 
     double CosineSimilarity(Vector3D a, Vector3D b)
