@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 
 public class Recognize
 {
@@ -200,5 +201,36 @@ public class Recognize
     public bool IsPlayer2Detected()
     {
         return players.Player2 != null;
+    }
+
+    public bool ComparePlayers()
+    {
+        double similarity = 0;
+
+        for (int i = 0; i < players.Player1Vector.Length; i++)
+        {
+            similarity += CosineSimilarity(players.Player1Vector[i], players.Player2Vector[i]);
+        }
+
+        similarity /= players.Player1Vector.Length;
+
+        if (similarity > 0.65)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+
+    }
+
+    double CosineSimilarity(Vector3D a, Vector3D b)
+    {
+        double dot = Vector3D.DotProduct(a, b);
+        double mag = a.Length * b.Length;
+
+        if (mag == 0) return 0;
+        return dot / mag;
     }
 }
