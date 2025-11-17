@@ -84,13 +84,19 @@ namespace OneMind
                 pgrTime.Value = 0;
                 lblKeyword.Content = "게임 시작!";
                 _score = 0;
-                lblScore.Content = $"점수: {_score}점"; // 초기 점수 표시
+                lblScore.Dispatcher.Invoke(() =>
+                {
+                    lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+                });
             }
             else
             {
                 lblKeyword.Content = $"게임 재개! 남은 시간: {_timeLeft}초";
                 pgrTime.Value = 3 - _timeLeft;
-                lblScore.Content = $"점수: {_score}점"; // 재개 시 점수 표시
+                lblScore.Dispatcher.Invoke(() =>
+                {
+                    lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+                });
             }
 
             pgrTime.Maximum = 3;
@@ -136,6 +142,7 @@ namespace OneMind
 
             _gameRunning = false;
             _timerStarted = false;
+            SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
            
@@ -154,7 +161,11 @@ namespace OneMind
             {
                  lblKeyword.Content = "오답입니다! (+0점)";
             }
-            lblScore.Content = $"점수: {_score}점"; // 점수 업데이트
+
+            lblScore.Dispatcher.Invoke(() =>
+            {
+                lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+            });
             _currentQuestion++;
 
             if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
