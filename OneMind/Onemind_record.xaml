@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OneMind"
         mc:Ignorable="d"
-        Title="Onemind_record" Height="450" Width="800">
-    <Grid Background="#0A0A0A"> <TextBlock
+        Title="Onemind" Height="600" Width="960">
+    <Grid Background="Black"> 
+        <TextBlock
             HorizontalAlignment="Center"
             Margin="0,40,0,0"
             Text="게임 결과"
@@ -21,8 +22,8 @@
             Width="640"
             Height="270"  Margin="0,110,0,0"
             CornerRadius="15" 
-            Background="#18FFFFFF"  BorderBrush="#40FFFFFF" 
-            BorderThickness="1">
+            Background="#18FFFFFF"  BorderBrush="#8A2BE2" 
+            BorderThickness="3">
             
             <Border.Effect>
                 <DropShadowEffect 
@@ -64,7 +65,7 @@
         <Button
             Content="돌아가기"
             HorizontalAlignment="Left"
-            Margin="590,390,0,0" 
+            Margin="680,410,0,0" 
             VerticalAlignment="Top"
             Click="Button_Click"
             FontSize="16"
