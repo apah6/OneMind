@@ -101,7 +101,7 @@ namespace OneMind
                 _gameRunning = false;
                 _timerStarted = false;
 
-               // GoToRecordWindow(); // 자동으로 기록 창으로 이동
+               //GoToRecordWindow(); // 자동으로 기록 창으로 이동
             }
         }
 
