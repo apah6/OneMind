@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Threading;
@@ -18,11 +19,15 @@ namespace OneMind
         private int _maxQuestions = 10; // 최대 문제 수  
         private int _score = 0; // 점수
         private string TeamName; // 팀명
+        private string categoryName;
 
         private Recognize _recognizer;
 
+        // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
+        private List<int> _usedQuestionIds = new List<int>();
 
-        public Window1(Recognize recognizer, String teamName)
+
+        public Window1(Recognize recognizer, String teamName, string categoryName)
         {
             InitializeComponent();
             InitializeDetectionCheck();
@@ -36,10 +41,9 @@ namespace OneMind
                 imgPlayer2.Source = _recognizer.ColorBitmap;
 
             }
-
-            TeamName = teamName;
-
             InitializeTimer();
+            TeamName = teamName;
+            this.categoryName = categoryName;
         }
 
         private void InitializeDetectionCheck()
@@ -63,6 +67,7 @@ namespace OneMind
             {
                 _timerStarted = true;
                 StartGame(false);
+                LoadNextQuestion(); // 첫 문제 즉시 출력
             }
 
         }
@@ -91,7 +96,7 @@ namespace OneMind
             }
             else
             {
-                lblKeyword.Content = $"게임 재개! 남은 시간: {_timeLeft}초";
+                lblKeyword.Content = $"게임 재개!";
                 pgrTime.Value = 3 - _timeLeft;
                 lblScore.Dispatcher.Invoke(() =>
                 {
@@ -112,12 +117,10 @@ namespace OneMind
 
             _timeLeft--;
             pgrTime.Value = 3 - _timeLeft;
-            lblKeyword.Content = $"남은 시간: {_timeLeft}초";
 
             if (_timeLeft <= 0)
             {
                 _timer.Stop();
-                lblKeyword.Content = "시간 종료!";
                 _gameRunning = false;
                 _timerStarted = false;
 
@@ -138,7 +141,9 @@ namespace OneMind
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             if (_timer != null && _timer.IsEnabled)
+            {
                 _timer.Stop();
+            }
 
             _gameRunning = false;
             _timerStarted = false;
@@ -151,32 +156,42 @@ namespace OneMind
 
         private void FinishQuestion()
         {
-            bool isCorrect = _recognizer.ComparePlayers(); // 같은 동작인지 확인
+            bool isCorrect = _recognizer.ComparePlayers(); // 같은 동작이면
+
             if (isCorrect)
             {
-                _score++; // 정답 시 점수(1점) 추가
-                lblKeyword.Content = "정답입니다! (+1점)";
-            }
-            else
-            {
-                 lblKeyword.Content = "오답입니다! (+0점)";
+
+                _score++;
             }
 
-            lblScore.Dispatcher.Invoke(() =>
-            {
-                lblScore.Content = $"점수: {_score} / {_maxQuestions}";
-            });
+            lblKeyword.Content = isCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
+            lblScore.Content = $"점수: {_score} / {_maxQuestions}";
             _currentQuestion++;
 
-            if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
+            if (_currentQuestion >= _maxQuestions) // 모든 문제 완료
             {
-                SaveScoreToDB(); // 점수 DB 저장
-                GoToRecordWindow(); // 기록 창으로 이동
+                EndGame();
                 return;
             }
 
-            // 다음 문제 로딩
-            LoadNextQuestion();
+            // 1초 후 다음 문제
+            DispatcherTimer delayTimer = new DispatcherTimer();
+            delayTimer.Interval = TimeSpan.FromSeconds(1);
+            delayTimer.Tick += (s, e) =>
+            {
+                delayTimer.Stop();
+                LoadNextQuestion();
+            };
+            delayTimer.Start();
+
+        }
+
+        private void EndGame()
+        {
+            _gameRunning = false;
+            _timerStarted = false;
+            SaveScoreToDB();
+            GoToRecordWindow();
         }
 
         private void SaveScoreToDB() // 점수 DB 저장    
@@ -205,9 +220,53 @@ namespace OneMind
             }
         }
 
-        private void LoadNextQuestion() // DB 연결 필요
+        private void LoadNextQuestion() // DB 연결 필요 (제시어)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                {
+                    conn.Open();
+
+                    // 이미 사용한 문제 제외하고 항목별 랜덤 1문제 선택
+                    string sql = @"
+                        SELECT TOP 1 QuestionID, QuestionText
+                        FROM QuestionsTable
+                        WHERE Category = @category
+                        AND QuestionID NOT IN (" + (_usedQuestionIds.Count > 0 ? string.Join(",", _usedQuestionIds) : "0") + @")
+                        ORDER BY NEWID()";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@category", categoryName);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int questionId = reader.GetInt32(0);
+                            string questionText = reader.GetString(1);
+
+                            _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
+                            lblKeyword.Content = questionText;
+
+                            _timeLeft = 3;
+                            pgrTime.Value = 0;
+                            _timer.Stop();
+                            _timer.Start();
+                        }
+                        else
+                        {
+                            // 더 이상 문제가 없으면 게임 종료
+                            EndGame(); 
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("문제 로딩 오류: " + ex.Message);
+            }
         }
+
     }
 }
