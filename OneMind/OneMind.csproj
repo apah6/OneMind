@@ -59,6 +59,7 @@
     <Compile Include="Onemind_record.xaml.cs">
       <DependentUpon>Onemind_record.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Player.cs" />
     <Compile Include="Recognize.cs" />
     <Compile Include="Window1.xaml.cs">
       <DependentUpon>Window1.xaml</DependentUpon>
