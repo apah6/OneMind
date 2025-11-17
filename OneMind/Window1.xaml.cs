@@ -80,7 +80,7 @@ namespace OneMind
             }
         }
 
-        
+
         //private void Sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         //{
         //    using (SkeletonFrame frame = e.OpenSkeletonFrame())
