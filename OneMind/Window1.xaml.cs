@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Threading;
+
 
 
 namespace OneMind
@@ -14,11 +16,13 @@ namespace OneMind
         private bool _timerStarted = false;
         private int _currentQuestion = 0; // 현재 문제 번호
         private int _maxQuestions = 10; // 최대 문제 수  
-
+        private int _score = 0; // 점수
+        private string TeamName; // 팀명
 
         private Recognize _recognizer;
 
-        public Window1(Recognize recognizer)
+
+        public Window1(Recognize recognizer, String teamName)
         {
             InitializeComponent();
             InitializeDetectionCheck();
@@ -32,6 +36,8 @@ namespace OneMind
                 imgPlayer2.Source = _recognizer.ColorBitmap;
 
             }
+
+            TeamName = teamName;
 
             InitializeTimer();
         }
@@ -77,11 +83,14 @@ namespace OneMind
                 _timeLeft = 3;
                 pgrTime.Value = 0;
                 lblKeyword.Content = "게임 시작!";
+                _score = 0;
+                lblScore.Content = $"점수: {_score}점"; // 초기 점수 표시
             }
             else
             {
                 lblKeyword.Content = $"게임 재개! 남은 시간: {_timeLeft}초";
                 pgrTime.Value = 3 - _timeLeft;
+                lblScore.Content = $"점수: {_score}점"; // 재개 시 점수 표시
             }
 
             pgrTime.Maximum = 3;
@@ -90,7 +99,10 @@ namespace OneMind
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (!_gameRunning) return;
+            if (!_gameRunning)
+            {
+                return;
+            }
 
             _timeLeft--;
             pgrTime.Value = 3 - _timeLeft;
@@ -114,8 +126,8 @@ namespace OneMind
 
             record.Show();
             this.Close();  // 현재 Window1 닫기
+            _recognizer.CloseKinect(); // Kinect 종료
         }
-
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
@@ -126,21 +138,60 @@ namespace OneMind
             _timerStarted = false;
 
             GoToRecordWindow(); // 기록 창으로 이동
+           
 
         }
 
         private void FinishQuestion()
         {
+            bool isCorrect = _recognizer.ComparePlayers(); // 같은 동작인지 확인
+            if (isCorrect)
+            {
+                _score++; // 정답 시 점수(1점) 추가
+                lblKeyword.Content = "정답입니다! (+1점)";
+            }
+            else
+            {
+                 lblKeyword.Content = "오답입니다! (+0점)";
+            }
+            lblScore.Content = $"점수: {_score}점"; // 점수 업데이트
             _currentQuestion++;
 
             if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
             {
+                SaveScoreToDB(); // 점수 DB 저장
                 GoToRecordWindow(); // 기록 창으로 이동
                 return;
             }
 
             // 다음 문제 로딩
             LoadNextQuestion();
+        }
+
+        private void SaveScoreToDB() // 점수 DB 저장    
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                {
+                    conn.Open();
+
+                    string sql = @"
+                INSERT INTO RankingTable (TeamName, Score, RecordDate)
+                VALUES (@team, @score, GETDATE())
+            ";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@team", TeamName);
+                    cmd.Parameters.AddWithValue("@score", _score);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("점수 저장 오류: " + ex.Message);
+            }
         }
 
         private void LoadNextQuestion() // DB 연결 필요
