@@ -34,8 +34,8 @@ public class Recognize
     // players 접근 동기화용 락
     private readonly object _playersLock = new object();
 
-    // 이벤트: 플레이어별 최신 크롭 이미지를 UI로 보냄
-    public event Action<WriteableBitmap, WriteableBitmap> PlayerCropsUpdated;
+    // 이벤트: 컬러 프레임을 좌/우로 나눈 이미지를 UI로 보냄
+    public event Action<WriteableBitmap, WriteableBitmap> ColorHalvesUpdated;
 
     public Recognize()
     {
@@ -101,9 +101,10 @@ public class Recognize
         {
             if (frame == null) return;
 
+            // colorPixels에 최신 프레임 복사
             frame.CopyPixelDataTo(colorPixels);
 
-            // UI 스레드 안전하게 업데이트
+            // UI 스레드 안전하게 전체 프레임 텍스처 업데이트
             Application.Current.Dispatcher.Invoke(() =>
             {
                 colorBitmap.WritePixels(
@@ -112,6 +113,39 @@ public class Recognize
                     frame.Width * sizeof(int),
                     0);
             });
+
+            // 좌/우 반으로 나눠서 이벤트로 전달
+            int frameW = frame.Width;
+            int frameH = frame.Height;
+            int leftW = frameW / 2;
+            int rightW = frameW - leftW;
+
+            if (leftW <= 0 || rightW <= 0) return;
+
+            int leftStride = leftW * 4;
+            int rightStride = rightW * 4;
+            byte[] leftPixels = new byte[leftW * frameH * 4];
+            byte[] rightPixels = new byte[rightW * frameH * 4];
+
+            // 행 단위로 복사
+            for (int row = 0; row < frameH; row++)
+            {
+                int srcRowStart = row * frameW * 4;
+                Buffer.BlockCopy(colorPixels, srcRowStart, leftPixels, row * leftStride, leftStride);
+                Buffer.BlockCopy(colorPixels, srcRowStart + leftStride, rightPixels, row * rightStride, rightStride);
+            }
+
+            var leftBmp = new WriteableBitmap(leftW, frameH, 96.0, 96.0, PixelFormats.Bgr32, null);
+            leftBmp.WritePixels(new Int32Rect(0, 0, leftW, frameH), leftPixels, leftStride, 0);
+
+            var rightBmp = new WriteableBitmap(rightW, frameH, 96.0, 96.0, PixelFormats.Bgr32, null);
+            rightBmp.WritePixels(new Int32Rect(0, 0, rightW, frameH), rightPixels, rightStride, 0);
+
+            // UI 스레드에서 이벤트 발생 (비동기)
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ColorHalvesUpdated?.Invoke(leftBmp, rightBmp);
+            }));
         }
     }
 
@@ -167,87 +201,8 @@ public class Recognize
                 players.Update(trackedSkeletons);
             }
 
-            // 플레이어 크롭을 얻어 UI에 푸시 (null 가능한 항목 허용)
-            var crops = GetBothPlayerColorCrops(20);
-            // UI 스레드에서 이벤트 발생 (비동기)
-            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
-            {
-                PlayerCropsUpdated?.Invoke(crops[0], crops[1]);
-            }));
+            // 크롭 관련 이벤트/메서드를 제거했으므로 추가 동작 없음
         }
-    }
-
-    // --- 추가된 메서드: 플레이어 기준으로 color 프레임을 크롭해서 반환 ---
-    // playerIndex: 1 또는 2 (존재하지 않으면 null 반환)
-    // padding: 바운딩 박스 주변 여백 (픽셀)
-    public WriteableBitmap GetPlayerColorCrop(int playerIndex, int padding = 20)
-    {
-        JointCollection joints;
-        lock (_playersLock)
-        {
-            if (players == null) return null;
-            joints = playerIndex == 1 ? players.Player1 : players.Player2;
-        }
-
-        if (joints == null) return null;
-        if (kinectsensor == null || colorBitmap == null || colorPixels == null) return null;
-
-        int frameW = colorBitmap.PixelWidth;
-        int frameH = colorBitmap.PixelHeight;
-
-        int minX = frameW, minY = frameH, maxX = 0, maxY = 0;
-        bool any = false;
-
-        // JointCollection은 IEnumerable<Joint>를 제공하므로 foreach 사용
-        foreach (Joint j in joints)
-        {
-            if (j == null) continue;
-            // 좌표 매핑 (Color 해상도와 동일한 포맷 사용)
-            var pt = kinectsensor.CoordinateMapper.MapSkeletonPointToColorPoint(j.Position, ColorImageFormat.RgbResolution640x480Fps30);
-            // Map 결과가 음수이거나 프레임을 벗어날 수 있으니 클램프는 나중에 처리
-            minX = Math.Min(minX, pt.X);
-            minY = Math.Min(minY, pt.Y);
-            maxX = Math.Max(maxX, pt.X);
-            maxY = Math.Max(maxY, pt.Y);
-            any = true;
-        }
-
-        if (!any) return null;
-
-        minX = Math.Max(0, minX - padding);
-        minY = Math.Max(0, minY - padding);
-        maxX = Math.Min(frameW - 1, maxX + padding);
-        maxY = Math.Min(frameH - 1, maxY + padding);
-
-        int w = maxX - minX + 1;
-        int h = maxY - minY + 1;
-        if (w <= 0 || h <= 0) return null;
-
-        int srcStride = frameW * 4;
-        int dstStride = w * 4;
-        byte[] crop = new byte[w * h * 4];
-
-        // 안전하게 블록 복사 (행 단위)
-        for (int row = 0; row < h; row++)
-        {
-            int srcIndex = ((minY + row) * frameW + minX) * 4;
-            int dstIndex = row * dstStride;
-            Buffer.BlockCopy(colorPixels, srcIndex, crop, dstIndex, dstStride);
-        }
-
-        var wb = new WriteableBitmap(w, h, 96.0, 96.0, PixelFormats.Bgr32, null);
-        wb.WritePixels(new Int32Rect(0, 0, w, h), crop, dstStride, 0);
-        return wb;
-    }
-
-    // 두 플레이어의 크롭 이미지를 동시에 얻기 (존재하지 않으면 해당 인덱스에 null)
-    public WriteableBitmap[] GetBothPlayerColorCrops(int padding = 20)
-    {
-        return new WriteableBitmap[]
-        {
-            GetPlayerColorCrop(1, padding),
-            GetPlayerColorCrop(2, padding)
-        };
     }
 
     public void CloseKinect()
