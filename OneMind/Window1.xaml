@@ -247,7 +247,7 @@
                                RenderOptions.BitmapScalingMode="HighQuality"
                                Margin="3"/>
                         <Border Background="#00FFFF" 
-                                Opacity="0" 
+                                Opacity="0." 
                                 CornerRadius="17"/>
                     </Grid>
                 </Border>

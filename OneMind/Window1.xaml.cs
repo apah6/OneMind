@@ -260,6 +260,8 @@ namespace OneMind
                             _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
                             lblKeyword.Content = questionText;
 
+                         
+
                             _timeLeft = 5;  // 5초 행동 시간
                             pgrTime.Value = 0;
                             _timer.Stop();
