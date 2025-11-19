@@ -299,6 +299,7 @@ namespace OneMind
         private void EndGame()
         {
             _gameRunning = false;
+            lblKeyword.Content = "게임 종료! 점수 기록 중...";
 
             SaveScoreToDB();
             GoToRecordWindow();
@@ -391,7 +392,16 @@ namespace OneMind
                         }
                         else
                         {
-                            EndGame();
+                            lblKeyword.Content = "문제를 다 풀었습니다."; 
+
+                            DispatcherTimer finalDelayTimer = new DispatcherTimer();
+                            finalDelayTimer.Interval = TimeSpan.FromSeconds(2); // 2초 지연 설정
+                            finalDelayTimer.Tick += (s, e) =>
+                            {
+                                finalDelayTimer.Stop();
+                                EndGame(); 
+                            };
+                            finalDelayTimer.Start();
                         }
                     }
                   
