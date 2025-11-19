@@ -10,7 +10,11 @@ namespace OneMind
     {
         private DispatcherTimer _timer;
         private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
-        private int _timeLeft = 5;
+
+        // 시간을 5초가 아니라 0.1초 단위의 '틱'으로 관리 (5초 = 50틱)
+        private int _timeLeftTicks = 50;
+        private const int MaxTicks = 50; // 5초 기준
+
         private bool _gameRunning = false;
         private bool _timerStarted = false;
         private int _currentQuestion = 0; // 현재 문제 번호
@@ -134,31 +138,33 @@ namespace OneMind
         private void ResumeTimerIfPlayersDetected()
         {
             // 두 플레이어가 감지되고, 타이머가 멈춰있으며 현재 문제 진행 중이고 남은 시간이 있을 때 타이머 재개
-            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeft > 0)
+            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
             {
                 lblKeyword.Content = "게임 재개!";
                 _timer.Start();
             }
+
         }
 
         private void InitializeTimer()
         {
             _timer = new DispatcherTimer();
-            _timer.Interval = TimeSpan.FromSeconds(1);
+            _timer.Interval = TimeSpan.FromMilliseconds(100);
             _timer.Tick += Timer_Tick;
         }
 
         private void StartGame()
         {
             _gameRunning = true;
-            _timeLeft = 5;
+            _timeLeftTicks = MaxTicks;
+            pgrTime.Maximum = MaxTicks;
             pgrTime.Value = 0;
+
             lblKeyword.Content = "게임 시작!";
             _score = 0;
             _currentQuestion = 0;
 
             lblScore.Content = $"{_score} / {_maxQuestions}";
-            pgrTime.Maximum = 5;
 
             _timer.Start();
             _timerStarted = true;
@@ -182,17 +188,36 @@ namespace OneMind
                 return;
             }
 
-            // 둘 다 인식되면 타이머 감소
-            _timeLeft--;
-            pgrTime.Value = 5 - _timeLeft; // 프로그레스 바 갱신함.
+            bool isCorrect = false;
+            try
+            {
+                isCorrect = _recognizer.ComparePlayers(); // 플레이어 동작 비교
+            }
+            catch { }
 
-            if (_timeLeft <= 0)
+            if (isCorrect)
             {
                 _timer.Stop();
-                _gameRunning = false;
-                _timerStarted = false;
+                _score++;
 
+                // 점수 UI 갱신
+                lblScore.Content = $"{_score} / {_maxQuestions}";
+
+                // 문제 완료 처리
                 FinishQuestion();
+                return; // 타이머 종료 안 하고 문제 넘어가도록
+            }
+
+            // 둘 다 인식되면 타이머 감소
+            // 타이머 감소(0.1초 단위)
+            _timeLeftTicks--;
+            pgrTime.Value = MaxTicks - _timeLeftTicks; // 프로그래스 바 갱신
+
+            if (_timeLeftTicks <= 0)
+            {
+       
+                _timer.Stop(); // 타이머 정지
+                FinishQuestion(); // 정답 여부와 상관 없이 문제 종료 처리  
             }
         }
 
@@ -240,37 +265,25 @@ namespace OneMind
             GoToRecordWindow(); // 기록 창으로 이동
         }
 
+
         private void FinishQuestion()
         {
-            bool isCorrect = false;
-            try
-            {
-                isCorrect = _recognizer.ComparePlayers(); // 플레이어 동작 비교
-            }
-            catch { }
+            _gameRunning = false;
+            _timerStarted = false;
 
-            if (isCorrect)
-            {
-                _score++;
-            }
+            // lblKeyword 내용만 처리
+            lblKeyword.Content = "문제 종료";
 
-            lblKeyword.Content = isCorrect ? "정답입니다! (+1)" : "오답입니다! (+0)";
+            _currentQuestion++; // 맞았든 틀렸든 번호 증가
 
-            // UI 갱신을 Dispatcher로 보장
-            Dispatcher.Invoke(() =>
-            {
-                lblScore.Content = $"{_score} / {_maxQuestions}";
-            });
-
-            _currentQuestion++; // 명령어 맞던 틀리던 다음 문제로 간다.
-
+            // 마지막 문제가 아니면 다음 문제 로드
             if (_currentQuestion >= _maxQuestions)
             {
                 EndGame();
                 return;
             }
 
-            // 문제를 맞건 틀리건 다음 문제 로드
+            // 1초 대기 후 다음 문제 로드
             DispatcherTimer delayTimer = new DispatcherTimer();
             delayTimer.Interval = TimeSpan.FromSeconds(1);
             delayTimer.Tick += (s, e) =>
@@ -331,10 +344,16 @@ namespace OneMind
                 {
                     conn.Open();
 
-                    string sql = @"
-                SELECT TOP (@cnt) Game_Word_ID, Game_Word
+                    // 이미 출제된 문제 ID들을 콤마로 연결 (예: "1,5,7")
+                    // 리스트가 비어있으면 "0"을 넣어 에러 방지
+                    string notInClause = _usedQuestionIds.Count > 0
+                                         ? string.Join(",", _usedQuestionIds)
+                                         : "0";
+                    string sql = $@"
+                SELECT TOP 1 Game_Word_ID, Game_Word
                 FROM GAME_WORD
-                WHERE Category_ID = @categoryId
+                WHERE Category_ID = @categoryId 
+                  AND Game_Word_ID NOT IN ({notInClause})
                 ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
@@ -354,17 +373,28 @@ namespace OneMind
                             _usedQuestionIds.Add(questionId);
                             lblKeyword.Content = questionText;
 
-                            _timeLeft = 5;
+                            _timeLeftTicks = MaxTicks;
                             pgrTime.Value = 0;
+
                             _gameRunning = true;
                             _timerStarted = true;
 
+                            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
+                            {
+                                _timer.Start();
+                            }
+                            else
+                            {
+                                lblKeyword.Content = "플레이어 대기 중...";
+                              
+                            }
                         }
                         else
                         {
                             EndGame();
                         }
                     }
+                  
                 }
             }
 
