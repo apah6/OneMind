@@ -16,7 +16,7 @@ namespace OneMind
         private const int MaxTicks = 50; // 5초 기준
 
         private bool _gameRunning = false;
-        private bool _timerStarted = false;
+        private bool _gameInitialized = false;
         private int _currentQuestion = 0; // 현재 문제 번호
         private int _maxQuestions = 10; // 최대 문제 수  
         private int _score = 0; // 점수
@@ -122,11 +122,11 @@ namespace OneMind
             lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중...";
 
             // 두 명 모두 인식되면 게임 시작
-            if (!_timerStarted && player1 && player2)
+            if (!_gameInitialized && player1 && player2)
             {
-                _timerStarted = true;
+                _gameInitialized = true; // 이후에는 이 블록을 다시 실행하지 않습니다.
                 StartGame();
-                LoadNextQuestion(); // 첫 문제 즉시 출력
+                LoadNextQuestion(); // 첫 문제 로드 및 타이머 시작
             }
             else
             {
@@ -166,32 +166,26 @@ namespace OneMind
 
             lblScore.Content = $"{_score} / {_maxQuestions}";
 
-            _timer.Start();
-            _timerStarted = true;
+           
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (!_gameRunning)
-            {
-                return;
-            }
+            if (!_gameRunning) return;
 
-            // 플레이어 둘 중 하나라도 인식 안되면 타이머 멈춤
-            if ((!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected()) && _gameRunning)
+            // 1. 플레이어 감지 체크 (이탈 시 일시 정지)
+            if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected())
             {
                 lblKeyword.Content = "플레이어 재인식 중...";
-                if (_timer.IsEnabled)
-                {
-                    _timer.Stop(); // 타이머 일시정지
-                }
+                if (_timer.IsEnabled) _timer.Stop();
                 return;
             }
 
+            //  정답 체크 (가장 높은 우선순위)
             bool isCorrect = false;
             try
             {
-                isCorrect = _recognizer.ComparePlayers(); // 플레이어 동작 비교
+                isCorrect = _recognizer.ComparePlayers();
             }
             catch { }
 
@@ -199,28 +193,22 @@ namespace OneMind
             {
                 _timer.Stop();
                 _score++;
-
-                // 점수 UI 갱신
                 lblScore.Content = $"{_score} / {_maxQuestions}";
-
-                // 문제 완료 처리
                 FinishQuestion();
-                return; // 타이머 종료 안 하고 문제 넘어가도록
+                return; // 정답이면 여기서 바로 종료
             }
 
-            // 둘 다 인식되면 타이머 감소
-            // 타이머 감소(0.1초 단위)
+            // 시간 감소 (정답이 아닐 경우에만 시간 카운트)
             _timeLeftTicks--;
-            pgrTime.Value = MaxTicks - _timeLeftTicks; // 프로그래스 바 갱신
+            pgrTime.Value = MaxTicks - _timeLeftTicks; // 프로그레스 바 갱신
 
+            // 시간 초과 체크
             if (_timeLeftTicks <= 0)
             {
-       
-                _timer.Stop(); // 타이머 정지
-                FinishQuestion(); // 정답 여부와 상관 없이 문제 종료 처리  
+                _timer.Stop();
+                FinishQuestion();
             }
         }
-
         private void GoToRecordWindow()
         {
             // 중복 실행 방지
@@ -259,7 +247,7 @@ namespace OneMind
             DisposeDetectTimer();
 
             _gameRunning = false;
-            _timerStarted = false;
+           
             SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
@@ -269,8 +257,7 @@ namespace OneMind
         private void FinishQuestion()
         {
             _gameRunning = false;
-            _timerStarted = false;
-
+         
             // lblKeyword 내용만 처리
             lblKeyword.Content = "문제 종료";
 
@@ -297,7 +284,6 @@ namespace OneMind
         private void EndGame()
         {
             _gameRunning = false;
-            _timerStarted = false;
 
             SaveScoreToDB();
             GoToRecordWindow();
@@ -377,8 +363,7 @@ namespace OneMind
                             pgrTime.Value = 0;
 
                             _gameRunning = true;
-                            _timerStarted = true;
-
+                       
                             if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
                             {
                                 _timer.Start();
