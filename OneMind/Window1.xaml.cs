@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Threading;
+
 
 
 namespace OneMind
@@ -9,16 +12,22 @@ namespace OneMind
     {
         private DispatcherTimer _timer;
         private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
-        private int _timeLeft = 3;
+        private int _timeLeft = 5;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
         private int _currentQuestion = 0; // 현재 문제 번호
         private int _maxQuestions = 10; // 최대 문제 수  
-
+        private int _score = 0; // 점수
+        private string TeamName; // 팀명
+        private string categoryName; 
 
         private Recognize _recognizer;
 
-        public Window1(Recognize recognizer)
+        // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
+        private List<int> _usedQuestionIds = new List<int>();
+
+
+        public Window1(Recognize recognizer, String teamName, string categoryName)
         {
             InitializeComponent();
             InitializeDetectionCheck();
@@ -27,13 +36,24 @@ namespace OneMind
 
             if (_recognizer != null)
             {
-                // Player 1, Player 2 모두 컬러 영상 연결
-                imgPlayer1.Source = _recognizer.ColorBitmap;
-                imgPlayer2.Source = _recognizer.ColorBitmap;
+
+                _recognizer.ColorHalvesUpdated += Recognizer_ColorHalvesUpdated;
 
             }
-
             InitializeTimer();
+            TeamName = teamName;
+            this.categoryName = categoryName;
+        }
+
+        private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap left, System.Windows.Media.Imaging.WriteableBitmap right)
+        {
+            // 이벤트가 UI 스레드에서 호출되지 않을 수 있으므로 안전하게 Dispatcher 사용
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                imgPlayer1.Source = left;
+                imgPlayer2.Source = right;
+            }));
+
         }
 
         private void InitializeDetectionCheck()
@@ -57,6 +77,7 @@ namespace OneMind
             {
                 _timerStarted = true;
                 StartGame(false);
+                LoadNextQuestion(); // 첫 문제 즉시 출력
             }
 
         }
@@ -74,32 +95,42 @@ namespace OneMind
 
             if (!isResume)
             {
-                _timeLeft = 3;
+                _timeLeft = 5;
                 pgrTime.Value = 0;
                 lblKeyword.Content = "게임 시작!";
+                _score = 0;
+                lblScore.Dispatcher.Invoke(() =>
+                {
+                    lblScore.Content = $"{_score} / {_maxQuestions}";
+                });
             }
             else
             {
-                lblKeyword.Content = $"게임 재개! 남은 시간: {_timeLeft}초";
-                pgrTime.Value = 3 - _timeLeft;
+                lblKeyword.Content = $"게임 재개!";
+                pgrTime.Value = 5 - _timeLeft;
+                lblScore.Dispatcher.Invoke(() =>
+                {
+                    lblScore.Content = $"{_score} / {_maxQuestions}";
+                });
             }
 
-            pgrTime.Maximum = 3;
+            pgrTime.Maximum = 5;
             _timer.Start();
         }
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (!_gameRunning) return;
+            if (!_gameRunning)
+            {
+                return;
+            }
 
             _timeLeft--;
-            pgrTime.Value = 3 - _timeLeft;
-            lblKeyword.Content = $"남은 시간: {_timeLeft}초";
+            pgrTime.Value = 5 - _timeLeft;
 
             if (_timeLeft <= 0)
             {
                 _timer.Stop();
-                lblKeyword.Content = "시간 종료!";
                 _gameRunning = false;
                 _timerStarted = false;
 
@@ -114,38 +145,138 @@ namespace OneMind
 
             record.Show();
             this.Close();  // 현재 Window1 닫기
+            _recognizer.CloseKinect(); // Kinect 종료
         }
-
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             if (_timer != null && _timer.IsEnabled)
+            {
                 _timer.Stop();
+            }
 
             _gameRunning = false;
             _timerStarted = false;
+            SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
+           
 
         }
 
         private void FinishQuestion()
         {
+            bool isCorrect = _recognizer.ComparePlayers(); // 같은 동작이면
+
+            if (isCorrect)
+            {
+
+                _score++;
+            }
+
+            lblKeyword.Content = isCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
+            lblScore.Content = $"{_score} / {_maxQuestions}";
             _currentQuestion++;
 
-            if (_currentQuestion >= _maxQuestions) // 모든 문제 다 풀면
+            if (_currentQuestion >= _maxQuestions) // 모든 문제 완료
             {
-                GoToRecordWindow(); // 기록 창으로 이동
+                EndGame();
                 return;
             }
 
-            // 다음 문제 로딩
-            LoadNextQuestion();
+            // 1초 후 다음 문제
+            DispatcherTimer delayTimer = new DispatcherTimer();
+            delayTimer.Interval = TimeSpan.FromSeconds(1);
+            delayTimer.Tick += (s, e) =>
+            {
+                delayTimer.Stop();
+                LoadNextQuestion();
+            };
+            delayTimer.Start();
+
         }
 
-        private void LoadNextQuestion() // DB 연결 필요
+        private void EndGame()
         {
-            throw new NotImplementedException();
+            _gameRunning = false;
+            _timerStarted = false;
+            SaveScoreToDB();
+            GoToRecordWindow();
         }
+
+        private void SaveScoreToDB() // 점수 DB 저장    
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                {
+                    conn.Open();
+
+                    string sql = @"
+                INSERT INTO RankingTable (TeamName, Score, RecordDate)
+                VALUES (@team, @score, GETDATE())
+            ";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@team", TeamName);
+                    cmd.Parameters.AddWithValue("@score", _score);
+
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("점수 저장 오류: " + ex.Message);
+            }
+        }
+
+        private void LoadNextQuestion() // DB 연결 필요 (제시어)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                {
+                    conn.Open();
+
+                    // 이미 사용한 문제 제외하고 항목별 랜덤 1문제 선택
+                    string sql = @"
+                        SELECT TOP 1 QuestionID, QuestionText
+                        FROM QuestionsTable
+                        WHERE Category = @category
+                        AND QuestionID NOT IN (" + (_usedQuestionIds.Count > 0 ? string.Join(",", _usedQuestionIds) : "0") + @")
+                        ORDER BY NEWID()";
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
+                    cmd.Parameters.AddWithValue("@category", categoryName);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int questionId = reader.GetInt32(0);
+                            string questionText = reader.GetString(1);
+
+                            _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
+                            lblKeyword.Content = questionText;
+
+                            _timeLeft = 5;
+                            pgrTime.Value = 0;
+                            _timer.Stop();
+                            _timer.Start();
+                        }
+                        else
+                        {
+                            // 더 이상 문제가 없으면 게임 종료
+                            EndGame(); 
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("문제 로딩 오류: " + ex.Message);
+            }
+        }
+
     }
 }

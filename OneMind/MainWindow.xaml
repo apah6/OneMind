@@ -290,7 +290,8 @@
                            Text="카테고리를 선택하세요"
                            Style="{StaticResource CaptionText}"/>
 
-                <ComboBox Grid.Row="8"
+                <ComboBox x:Name="CategoryBox"
+                          Grid.Row="8"
                           Style="{StaticResource RoundedComboBox}"
                           Width="560"
                           Height="58"

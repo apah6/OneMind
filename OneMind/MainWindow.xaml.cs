@@ -12,12 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Data;
+using System.Data.SqlClient;
+using Microsoft.Kinect;
+
 
 namespace OneMind
 {
-    /// <summary>
-    /// MainWindow.xaml에 대한 상호 작용 논리
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()
@@ -31,7 +32,23 @@ namespace OneMind
             // Recognize 인스턴스를 메인에서 생성해서 Window1에 주입(전달)
             Recognize recognizer = new Recognize();
 
-            Window1 gameWindow = new Window1(recognizer); // 생성자 주입
+            // 사용자 입력/선택 값 가져오기
+            string teamName = NicknameBox.Text.Trim();
+            string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+
+            if (string.IsNullOrWhiteSpace(NicknameBox.Text))
+            {
+                MessageBox.Show("닉네임을 입력하세요!", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;  // 진행 중단
+            }
+
+            if (string.IsNullOrEmpty(categoryName))
+            {
+                MessageBox.Show("카테고리를 선택하세요.");
+                return;
+            }
+
+            Window1 gameWindow = new Window1(recognizer, teamName, categoryName); // 생성자 주입
             gameWindow.Show();
             this.Hide();                        // 메인창 숨기기
         }
