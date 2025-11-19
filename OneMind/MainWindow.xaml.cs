@@ -36,13 +36,6 @@ namespace OneMind
             string teamName = NicknameBox.Text.Trim();
             string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
 
-            //Kinect 센서가 연결되어 있는지 확인
-            if (KinectSensor.KinectSensors.Count == 0) // Kinect 센서가 없는 경우
-            {
-                MessageBox.Show("Kinect 센서를 찾을 수 없습니다.");
-                return; // 창 생성 안 함
-            }
-
             if (string.IsNullOrWhiteSpace(NicknameBox.Text))
             {
                 MessageBox.Show("닉네임을 입력하세요!", "알림", MessageBoxButton.OK, MessageBoxImage.Warning);
