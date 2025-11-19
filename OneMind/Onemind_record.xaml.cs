@@ -28,6 +28,7 @@ namespace OneMind
         {
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
+            base.Close();
         }
     }
 }
