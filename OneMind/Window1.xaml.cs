@@ -19,7 +19,7 @@ namespace OneMind
         private int _maxQuestions = 10; // 최대 문제 수  
         private int _score = 0; // 점수
         private string TeamName; // 팀명
-        private string Category_ID; // 카테고리명
+        private int Category_ID; // 카테고리명
         private string _connStr = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
 
         private Recognize _recognizer;
@@ -28,7 +28,7 @@ namespace OneMind
         private List<int> _usedQuestionIds = new List<int>();
 
 
-        public Window1(Recognize recognizer, String teamName, string categoryName)
+        public Window1(Recognize recognizer, String teamName, int categoryName)
         {
             InitializeComponent();
             InitializeDetectionCheck();
@@ -78,7 +78,7 @@ namespace OneMind
             {
                 _timerStarted = true;
                 StartGame(false);
-                LoadNextQuestion(); // 첫 문제 즉시 출력
+                //LoadNextQuestion(); // 첫 문제 즉시 출력
             }
 
         }
@@ -208,6 +208,8 @@ namespace OneMind
 
         private void SaveScoreToDB() // 점수 DB 저장    
         {
+
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(_connStr))
@@ -215,13 +217,14 @@ namespace OneMind
                     conn.Open();
 
                     string sql = @"
-                INSERT INTO RankingTable (TeamName, Score, RecordDate)
-                VALUES (@team, @score, GETDATE())
-            ";
+                    INSERT INTO GAME_RESULT (User_ID, Category_ID, Score, Play_Date)
+                    VALUES (@team, @Category_ID, @score, GETDATE())
+                    ";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@team", TeamName);
                     cmd.Parameters.AddWithValue("@score", _score);
+                    cmd.Parameters.AddWithValue("@Category_ID", Category_ID);
 
                     cmd.ExecuteNonQuery();
                 }
@@ -231,6 +234,7 @@ namespace OneMind
                 MessageBox.Show("점수 저장 오류: " + ex.Message);
             }
         }
+
 
         private void LoadNextQuestion()
         {
@@ -255,7 +259,7 @@ namespace OneMind
                         if (reader.Read())
                         {
                             int questionId = reader.GetInt32(0);
-                            string questionText = reader.GetString(1);
+                            string questionText = reader.GetString(2);
 
                             _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
                             lblKeyword.Content = questionText;
