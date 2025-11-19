@@ -240,11 +240,10 @@ namespace OneMind
                     conn.Open();
 
                     string sql = @"
-                SELECT TOP (@cnt) QuestionID, Game_Word
-                FROM GAME_WORD
-                WHERE Category_ID = @categoryId
-                AND QuestionID NOT IN (" + (_usedQuestionIds.Count > 0 ? string.Join(",", _usedQuestionIds) : "0") + @")
-                ORDER BY NEWID();";
+                    SELECT TOP (@cnt) Game_Word
+                    FROM GAME_WORD
+                    WHERE Category_ID = @categoryId
+                    ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@cnt", 1); // 한 번에 1문제
