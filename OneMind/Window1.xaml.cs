@@ -262,18 +262,20 @@ namespace OneMind
         {
             _gameRunning = false;
 
-            // 현재 문제 ID를 사용된 리스트에 추가
-            if (lblKeyword.Content != null && lblKeyword.Content.ToString() != "")
-            {
-                // 현재 문제 ID를 가져오는 변수가 필요함
-                _usedQuestionIds.Add(_currentQuestionId); // _currentQuestionId를 LoadNextQuestion에서 세팅
+            if (_currentQuestionId != 0) // 유효한 문제 ID가 있을 때만 처리
+            {               
+                if (!_usedQuestionIds.Contains(_currentQuestionId))
+                {
+                    _usedQuestionIds.Add(_currentQuestionId);
+                }
+                _currentQuestionId = 0; // 초기화
             }
 
             // lblScore (점수)를 여기서 강제로 즉시 새로고침
             lblScore.Content = $"{_score} / {_maxQuestions}";
             lblScore.UpdateLayout();  // 즉시 갱신
 
-            _currentQuestion++;
+            _currentQuestion++; 
 
             if (_currentQuestion >= _maxQuestions)
             {
@@ -356,7 +358,7 @@ namespace OneMind
                 ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@cnt", 1);
+                   // cmd.Parameters.AddWithValue("@cnt", 1);
                     cmd.Parameters.AddWithValue("@categoryId", Category_ID);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -369,8 +371,7 @@ namespace OneMind
                             // 1번 컬럼 = Game_Word (string)
                             string questionText = reader.GetString(1);
 
-                            _currentQuestionId = questionId; // 현재 문제 ID 저장
-                            _usedQuestionIds.Add(questionId);
+                            _currentQuestionId = questionId; 
                             lblKeyword.Content = questionText;
 
                             _timeLeftTicks = MaxTicks;
@@ -385,6 +386,7 @@ namespace OneMind
                             else
                             {
                                 _timer.Stop();
+                                lblKeyword.Content = "플레이어 대기 중...";
                             }
                         }
                         else
