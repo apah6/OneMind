@@ -124,7 +124,7 @@ namespace OneMind
             // 두 명 모두 인식되면 게임 시작
             if (!_gameInitialized && player1 && player2)
             {
-                _gameInitialized = true; // 이후에는 이 블록을 다시 실행하지 않습니다.
+                _gameInitialized = true; 
                 StartGame();
                 LoadNextQuestion(); // 첫 문제 로드 및 타이머 시작
             }
@@ -174,7 +174,7 @@ namespace OneMind
         {
             if (!_gameRunning) return;
 
-            // 1. 플레이어 감지 체크 (이탈 시 일시 정지)
+            // 플레이어 감지 체크 (이탈 시 일시 정지)
             if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected())
             {
                 lblKeyword.Content = "플레이어 재인식 중...";
@@ -182,7 +182,7 @@ namespace OneMind
                 return;
             }
 
-            //  정답 체크 (가장 높은 우선순위)
+            //  정답 체크 
             bool isCorrect = false;
             try
             {
