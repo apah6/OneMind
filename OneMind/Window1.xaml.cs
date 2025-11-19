@@ -78,7 +78,7 @@ namespace OneMind
             {
                 _timerStarted = true;
                 StartGame(false);
-                //LoadNextQuestion(); // 첫 문제 즉시 출력
+                LoadNextQuestion(); // 첫 문제 즉시 출력
             }
 
         }
@@ -238,6 +238,12 @@ namespace OneMind
 
         private void LoadNextQuestion()
         {
+            if (_currentQuestion >= _maxQuestions)
+            {
+                EndGame();
+                return;
+            }
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(_connStr))
@@ -245,39 +251,41 @@ namespace OneMind
                     conn.Open();
 
                     string sql = @"
-                    SELECT TOP (@cnt) Game_Word
-                    FROM GAME_WORD
-                    WHERE Category_ID = @categoryId
-                    ORDER BY NEWID()";
+                SELECT TOP (@cnt) Game_Word_ID, Game_Word
+                FROM GAME_WORD
+                WHERE Category_ID = @categoryId
+                ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@cnt", 1); // 한 번에 1문제
+                    cmd.Parameters.AddWithValue("@cnt", 1);
                     cmd.Parameters.AddWithValue("@categoryId", Category_ID);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
+                            // 0번 컬럼 = Game_Word_ID (int)
                             int questionId = reader.GetInt32(0);
-                            string questionText = reader.GetString(2);
 
-                            _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
+                            // 1번 컬럼 = Game_Word (string)
+                            string questionText = reader.GetString(1);
+
+                            _usedQuestionIds.Add(questionId);
                             lblKeyword.Content = questionText;
 
-                         
-
-                            _timeLeft = 5;  // 5초 행동 시간
+                            _timeLeft = 5;
                             pgrTime.Value = 0;
                             _timer.Stop();
                             _timer.Start();
                         }
                         else
                         {
-                            EndGame(); // 더 이상 문제가 없으면 게임 종료
+                            EndGame();
                         }
                     }
                 }
             }
+           
             catch (Exception ex)
             {
                 MessageBox.Show("문제 로딩 오류: " + ex.Message);
