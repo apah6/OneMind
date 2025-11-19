@@ -30,6 +30,7 @@ namespace OneMind
         // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
         private List<int> _usedQuestionIds = new List<int>();
         private int _currentQuestionId; // 현재 문제의 ID 저장 (틀린거 다시 나오지 않게 하려고)
+        private string _currentQuestionText; // 현재 문제의 텍스트 저장
 
         public Window1(Recognize recognizer, String teamName, int categoryName)
         {
@@ -152,6 +153,19 @@ namespace OneMind
             if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
             {
                 lblKeyword.Content = "게임 재개!";
+                DispatcherTimer resumeDelayTimer = new DispatcherTimer();
+                resumeDelayTimer.Interval = TimeSpan.FromSeconds(1);
+                resumeDelayTimer.Tick += (s, e) =>
+                {
+                    resumeDelayTimer.Stop();
+                    // 제시어가 유효할 경우에만 복구
+                    if (!string.IsNullOrEmpty(_currentQuestionText))
+                    {
+                        lblKeyword.Content = _currentQuestionText;
+                    }
+                };
+                resumeDelayTimer.Start();
+
                 _timer.Start();
             }
 
@@ -392,6 +406,7 @@ namespace OneMind
                             string questionText = reader.GetString(1);
 
                             _currentQuestionId = questionId; 
+                            _currentQuestionText = questionText; // 제시어 저장
                             lblKeyword.Content = questionText;
 
                             _timeLeftTicks = MaxTicks;
