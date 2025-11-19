@@ -155,7 +155,7 @@ namespace OneMind
         private void ResumeTimerIfPlayersDetected()
         {
             // 두 플레이어가 감지되고, 타이머가 멈춰있으며 현재 문제 진행 중이고 남은 시간이 있을 때 타이머 재개
-            if (_timer !=null && _recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
+            if (_timer != null && _recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
             {
                 lblKeyword.Content = "게임 재개!";
                 DispatcherTimer resumeDelayTimer = new DispatcherTimer();
@@ -231,8 +231,7 @@ namespace OneMind
             if (isCorrect)
             {
                 _timer.Stop();
-                _score++;
-                lblScore.Content = $"{_score} / {_maxQuestions}";
+                _score++;            
                 _lastCorrect = true; // 정답 처리
                 FinishQuestion();
                 return; // 정답이면 여기서 바로 종료
@@ -292,11 +291,12 @@ namespace OneMind
             DisposeDetectTimer();
 
             _gameRunning = false;
-           
+            _currentQuestionText = null;
+
             SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
-            _currentQuestionText = null;
+            
         }
         private void FinishQuestion()
         {
@@ -310,7 +310,7 @@ namespace OneMind
                 }
                 _currentQuestionId = 0; // 초기화
             }
-
+            _currentQuestionText = null;
             // lblScore (점수)를 여기서 강제로 즉시 새로고침
             lblScore.Content = $"{_score} / {_maxQuestions}";
             lblScore.UpdateLayout();  // 즉시 갱신
@@ -334,7 +334,7 @@ namespace OneMind
                 LoadNextQuestion();
             };
             delayTimer.Start();
-            _currentQuestionText = null;
+           
 
         }
 
