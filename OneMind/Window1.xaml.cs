@@ -146,6 +146,7 @@ namespace OneMind
 
             record.Show();
             this.Close();  // 현재 Window1 닫기
+            _recognizer.ColorHalvesUpdated -= Recognizer_ColorHalvesUpdated;
             _recognizer.CloseKinect(); // Kinect 종료
         }
 
