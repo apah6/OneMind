@@ -29,7 +29,7 @@ namespace OneMind
 
         // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
         private List<int> _usedQuestionIds = new List<int>();
-        private int _currentQuestionId; // 현재 문제의 ID 저장 (틀린거 다시 나오지 않게 하려고)
+        private int _currentQuestionId; // 현재 문제의 ID 저장 (중복 출제 방지)
         private string _currentQuestionText; // 현재 문제의 텍스트 저장
 
         public Window1(Recognize recognizer, String teamName, int categoryName)
@@ -127,6 +127,11 @@ namespace OneMind
 
         private void CheckPlayersDetected(object sender, EventArgs e)
         {
+            if (_recognizer == null)
+            {
+                return;
+            }
+
             bool player1 = _recognizer.IsPlayer1Detected();
             bool player2 = _recognizer.IsPlayer2Detected();
 
@@ -150,7 +155,7 @@ namespace OneMind
         private void ResumeTimerIfPlayersDetected()
         {
             // 두 플레이어가 감지되고, 타이머가 멈춰있으며 현재 문제 진행 중이고 남은 시간이 있을 때 타이머 재개
-            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
+            if (_timer !=null && _recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected() && !_timer.IsEnabled && _gameRunning && _timeLeftTicks > 0)
             {
                 lblKeyword.Content = "게임 재개!";
                 DispatcherTimer resumeDelayTimer = new DispatcherTimer();
@@ -163,10 +168,11 @@ namespace OneMind
                     {
                         lblKeyword.Content = _currentQuestionText;
                     }
+                    _timer.Start(); // 제시어 복구 후 타이머 재개  
                 };
                 resumeDelayTimer.Start();
 
-                _timer.Start();
+                
             }
 
         }
@@ -197,7 +203,10 @@ namespace OneMind
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            if (!_gameRunning) return;
+            if (!_gameRunning)
+            {
+                return;
+            }
 
             // 플레이어 감지 체크 (이탈 시 일시 정지)
             if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected())
@@ -287,6 +296,7 @@ namespace OneMind
             SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
+            _currentQuestionText = null;
         }
         private void FinishQuestion()
         {
@@ -296,7 +306,7 @@ namespace OneMind
             {               
                 if (!_usedQuestionIds.Contains(_currentQuestionId))
                 {
-                    _usedQuestionIds.Add(_currentQuestionId);
+                    _usedQuestionIds.Add(_currentQuestionId); // 출제된 문제 ID 추가
                 }
                 _currentQuestionId = 0; // 초기화
             }
@@ -324,10 +334,9 @@ namespace OneMind
                 LoadNextQuestion();
             };
             delayTimer.Start();
-
+            _currentQuestionText = null;
 
         }
-
 
         private void EndGame()
         {
@@ -336,6 +345,7 @@ namespace OneMind
 
             SaveScoreToDB();
             GoToRecordWindow();
+            _currentQuestionText = null;
         }
 
         private void SaveScoreToDB() // 점수 DB 저장    
@@ -410,7 +420,7 @@ namespace OneMind
                             lblKeyword.Content = questionText;
 
                             _timeLeftTicks = MaxTicks;
-                            pgrTime.Value = 0;
+                            pgrTime.Value = 0; 
 
                             _gameRunning = true;
                        
