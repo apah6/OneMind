@@ -12,7 +12,7 @@ namespace OneMind
     {
         private DispatcherTimer _timer;
         private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
-        private int _timeLeft = 3;
+        private int _timeLeft = 5;
         private bool _gameRunning = false;
         private bool _timerStarted = false;
         private int _currentQuestion = 0; // 현재 문제 번호
@@ -36,9 +36,6 @@ namespace OneMind
 
             if (_recognizer != null)
             {
-                // Player 1, Player 2 모두 컬러 영상 연결
-                //imgPlayer1.Source = _recognizer.ColorBitmap;
-                //imgPlayer2.Source = _recognizer.ColorBitmap;
 
                 _recognizer.ColorHalvesUpdated += Recognizer_ColorHalvesUpdated;
 
@@ -98,26 +95,26 @@ namespace OneMind
 
             if (!isResume)
             {
-                _timeLeft = 3;
+                _timeLeft = 5;
                 pgrTime.Value = 0;
                 lblKeyword.Content = "게임 시작!";
                 _score = 0;
                 lblScore.Dispatcher.Invoke(() =>
                 {
-                    lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+                    lblScore.Content = $"{_score} / {_maxQuestions}";
                 });
             }
             else
             {
                 lblKeyword.Content = $"게임 재개!";
-                pgrTime.Value = 3 - _timeLeft;
+                pgrTime.Value = 5 - _timeLeft;
                 lblScore.Dispatcher.Invoke(() =>
                 {
-                    lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+                    lblScore.Content = $"{_score} / {_maxQuestions}";
                 });
             }
 
-            pgrTime.Maximum = 3;
+            pgrTime.Maximum = 5;
             _timer.Start();
         }
 
@@ -129,7 +126,7 @@ namespace OneMind
             }
 
             _timeLeft--;
-            pgrTime.Value = 3 - _timeLeft;
+            pgrTime.Value = 5 - _timeLeft;
 
             if (_timeLeft <= 0)
             {
@@ -178,7 +175,7 @@ namespace OneMind
             }
 
             lblKeyword.Content = isCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
-            lblScore.Content = $"점수: {_score} / {_maxQuestions}";
+            lblScore.Content = $"{_score} / {_maxQuestions}";
             _currentQuestion++;
 
             if (_currentQuestion >= _maxQuestions) // 모든 문제 완료
@@ -262,7 +259,7 @@ namespace OneMind
                             _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
                             lblKeyword.Content = questionText;
 
-                            _timeLeft = 3;
+                            _timeLeft = 5;
                             pgrTime.Value = 0;
                             _timer.Stop();
                             _timer.Start();
