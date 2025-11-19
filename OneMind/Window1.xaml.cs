@@ -166,6 +166,7 @@ namespace OneMind
 
             lblScore.Content = $"{_score} / {_maxQuestions}";
 
+    
            
         }
 
