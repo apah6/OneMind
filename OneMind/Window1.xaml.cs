@@ -19,7 +19,8 @@ namespace OneMind
         private int _maxQuestions = 10; // 최대 문제 수  
         private int _score = 0; // 점수
         private string TeamName; // 팀명
-        private string categoryName; 
+        private string Category_ID; // 카테고리명
+        private string _connStr = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
 
         private Recognize _recognizer;
 
@@ -42,7 +43,7 @@ namespace OneMind
             }
             InitializeTimer();
             TeamName = teamName;
-            this.categoryName = categoryName;
+            this.Category_ID = categoryName;
         }
 
         private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap left, System.Windows.Media.Imaging.WriteableBitmap right)
@@ -160,7 +161,7 @@ namespace OneMind
             SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
-           
+
 
         }
 
@@ -208,7 +209,7 @@ namespace OneMind
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                using (SqlConnection conn = new SqlConnection(_connStr))
                 {
                     conn.Open();
 
@@ -230,24 +231,24 @@ namespace OneMind
             }
         }
 
-        private void LoadNextQuestion() // DB 연결 필요 (제시어)
+        private void LoadNextQuestion()
         {
             try
             {
-                using (SqlConnection conn = new SqlConnection("서버=서버이름; 데이터베이스=DB이름; 사용자 ID=계정; 암호=비밀번호;"))
+                using (SqlConnection conn = new SqlConnection(_connStr))
                 {
                     conn.Open();
 
-                    // 이미 사용한 문제 제외하고 항목별 랜덤 1문제 선택
                     string sql = @"
-                        SELECT TOP 1 QuestionID, QuestionText
-                        FROM QuestionsTable
-                        WHERE Category = @category
-                        AND QuestionID NOT IN (" + (_usedQuestionIds.Count > 0 ? string.Join(",", _usedQuestionIds) : "0") + @")
-                        ORDER BY NEWID()";
+                SELECT TOP (@cnt) QuestionID, Game_Word
+                FROM GAME_WORD
+                WHERE Category_ID = @categoryId
+                AND QuestionID NOT IN (" + (_usedQuestionIds.Count > 0 ? string.Join(",", _usedQuestionIds) : "0") + @")
+                ORDER BY NEWID();";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                    cmd.Parameters.AddWithValue("@category", categoryName);
+                    cmd.Parameters.AddWithValue("@cnt", 1); // 한 번에 1문제
+                    cmd.Parameters.AddWithValue("@categoryId", Category_ID);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
@@ -259,15 +260,14 @@ namespace OneMind
                             _usedQuestionIds.Add(questionId); // 출제된 문제 ID 추가
                             lblKeyword.Content = questionText;
 
-                            _timeLeft = 5;
+                            _timeLeft = 5;  // 5초 행동 시간
                             pgrTime.Value = 0;
                             _timer.Stop();
                             _timer.Start();
                         }
                         else
                         {
-                            // 더 이상 문제가 없으면 게임 종료
-                            EndGame(); 
+                            EndGame(); // 더 이상 문제가 없으면 게임 종료
                         }
                     }
                 }
@@ -277,6 +277,5 @@ namespace OneMind
                 MessageBox.Show("문제 로딩 오류: " + ex.Message);
             }
         }
-
     }
 }
