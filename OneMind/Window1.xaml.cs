@@ -301,6 +301,7 @@ namespace OneMind
 
             lblKeyword.Content = _lastCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
 
+            // 1초 뒤에 다음 문제 로드
             DispatcherTimer delayTimer = new DispatcherTimer();
             delayTimer.Interval = TimeSpan.FromSeconds(1);
             delayTimer.Tick += (s, e) =>
@@ -309,6 +310,8 @@ namespace OneMind
                 LoadNextQuestion();
             };
             delayTimer.Start();
+
+
         }
 
 
