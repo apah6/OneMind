@@ -19,7 +19,7 @@ namespace OneMind
         private int _maxQuestions = 10; // 최대 문제 수  
         private int _score = 0; // 점수
         private string TeamName; // 팀명
-        private string categoryName;
+        private string categoryName; 
 
         private Recognize _recognizer;
 
@@ -37,13 +37,26 @@ namespace OneMind
             if (_recognizer != null)
             {
                 // Player 1, Player 2 모두 컬러 영상 연결
-                imgPlayer1.Source = _recognizer.ColorBitmap;
-                imgPlayer2.Source = _recognizer.ColorBitmap;
+                //imgPlayer1.Source = _recognizer.ColorBitmap;
+                //imgPlayer2.Source = _recognizer.ColorBitmap;
+
+                _recognizer.ColorHalvesUpdated += Recognizer_ColorHalvesUpdated;
 
             }
             InitializeTimer();
             TeamName = teamName;
             this.categoryName = categoryName;
+        }
+
+        private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap left, System.Windows.Media.Imaging.WriteableBitmap right)
+        {
+            // 이벤트가 UI 스레드에서 호출되지 않을 수 있으므로 안전하게 Dispatcher 사용
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                imgPlayer1.Source = left;
+                imgPlayer2.Source = right;
+            }));
+
         }
 
         private void InitializeDetectionCheck()
