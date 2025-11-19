@@ -95,6 +95,36 @@
                                 <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
 
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="4">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="5">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="6">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="7">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="8">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="9">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Text.Length, RelativeSource={RelativeSource Self}}" Value="10">
+                                <Setter TargetName="Placeholder" Property="Visibility" Value="Collapsed"/>
+                            </DataTrigger>
+                            
+
+
                         </ControlTemplate.Triggers>
 
                     </ControlTemplate>
