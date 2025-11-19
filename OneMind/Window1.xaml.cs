@@ -18,7 +18,8 @@ namespace OneMind
         private bool _gameRunning = false;
         private bool _gameInitialized = false;
         private int _currentQuestion = 0; // 현재 문제 번호
-        private int _maxQuestions = 10; // 최대 문제 수  
+        private int _maxQuestions = 10; // 최대 문제 수
+        private bool _lastCorrect = false; // 문제 정답 여부
         private int _score = 0; // 점수
         private string TeamName; // 팀명
         private int Category_ID; // 카테고리명
@@ -28,6 +29,7 @@ namespace OneMind
 
         // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
         private List<int> _usedQuestionIds = new List<int>();
+        private int _currentQuestionId; // 현재 문제의 ID 저장 (틀린거 다시 나오지 않게 하려고)
 
         public Window1(Recognize recognizer, String teamName, int categoryName)
         {
@@ -195,6 +197,7 @@ namespace OneMind
                 _timer.Stop();
                 _score++;
                 lblScore.Content = $"{_score} / {_maxQuestions}";
+                _lastCorrect = true; // 정답 처리
                 FinishQuestion();
                 return; // 정답이면 여기서 바로 종료
             }
@@ -207,9 +210,11 @@ namespace OneMind
             if (_timeLeftTicks <= 0)
             {
                 _timer.Stop();
+                _lastCorrect = false; // 시간 초과로 오답 처리
                 FinishQuestion();
             }
         }
+
         private void GoToRecordWindow()
         {
             // 중복 실행 방지
@@ -253,25 +258,31 @@ namespace OneMind
 
             GoToRecordWindow(); // 기록 창으로 이동
         }
-
-
         private void FinishQuestion()
         {
             _gameRunning = false;
-         
-            // lblKeyword 내용만 처리
-            lblKeyword.Content = "문제 종료";
 
-            _currentQuestion++; // 맞았든 틀렸든 번호 증가
+            // 현재 문제 ID를 사용된 리스트에 추가
+            if (lblKeyword.Content != null && lblKeyword.Content.ToString() != "")
+            {
+                // 현재 문제 ID를 가져오는 변수가 필요함
+                _usedQuestionIds.Add(_currentQuestionId); // _currentQuestionId를 LoadNextQuestion에서 세팅
+            }
 
-            // 마지막 문제가 아니면 다음 문제 로드
+            // lblScore (점수)를 여기서 강제로 즉시 새로고침
+            lblScore.Content = $"{_score} / {_maxQuestions}";
+            lblScore.UpdateLayout();  // 즉시 갱신
+
+            _currentQuestion++;
+
             if (_currentQuestion >= _maxQuestions)
             {
                 EndGame();
                 return;
             }
 
-            // 1초 대기 후 다음 문제 로드
+            lblKeyword.Content = _lastCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
+
             DispatcherTimer delayTimer = new DispatcherTimer();
             delayTimer.Interval = TimeSpan.FromSeconds(1);
             delayTimer.Tick += (s, e) =>
@@ -281,6 +292,7 @@ namespace OneMind
             };
             delayTimer.Start();
         }
+
 
         private void EndGame()
         {
@@ -357,6 +369,7 @@ namespace OneMind
                             // 1번 컬럼 = Game_Word (string)
                             string questionText = reader.GetString(1);
 
+                            _currentQuestionId = questionId; // 현재 문제 ID 저장
                             _usedQuestionIds.Add(questionId);
                             lblKeyword.Content = questionText;
 
@@ -371,8 +384,7 @@ namespace OneMind
                             }
                             else
                             {
-                                lblKeyword.Content = "플레이어 대기 중...";
-                              
+                                _timer.Stop();
                             }
                         }
                         else
