@@ -56,7 +56,10 @@ namespace OneMind
                 {
                     _timer.Stop();
                 }
-                catch {  }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("타이머 정지 오류: " + ex.Message);
+                }
 
                 _timer.Tick -= Timer_Tick;
                 _timer = null;
@@ -71,7 +74,10 @@ namespace OneMind
                 {
                     _detectTimer.Stop();
                 }
-                catch {  }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("감지 타이머 정지 오류: " + ex.Message);
+                }
 
                 _detectTimer.Tick -= CheckPlayersDetected;
                 _detectTimer = null;
@@ -111,7 +117,10 @@ namespace OneMind
                 {
                     _recognizer.CloseKinect();
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Kinect 종료 오류: " + ex.Message);
+                }
             }
         }
 
@@ -190,7 +199,11 @@ namespace OneMind
             {
                 isCorrect = _recognizer.ComparePlayers();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("정답 비교 오류: " + ex.Message);
+            }
+           
 
             if (isCorrect)
             {
@@ -235,7 +248,10 @@ namespace OneMind
                 {
                     _recognizer.CloseKinect();
                 }
-                catch { }
+                catch (Exception ex)
+                { 
+                    MessageBox.Show("Kinect 종료 오류: " + ex.Message);
+                }
             }
 
             // 기록 창 열기
