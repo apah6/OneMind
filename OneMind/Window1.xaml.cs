@@ -182,26 +182,6 @@ namespace OneMind
             _timer = new DispatcherTimer();
             _timer.Interval = TimeSpan.FromMilliseconds(100);
             _timer.Tick += Timer_Tick;
-            //  정답 체크 
-            bool isCorrect = false;
-            try
-            {
-                isCorrect = _recognizer.ComparePlayers();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("정답 비교 오류: " + ex.Message);
-            }
-
-
-            if (isCorrect) // 정답인 경우
-            {
-                _timer.Stop();
-                _score++;
-                _lastCorrect = true; // 정답 처리
-                FinishQuestion();
-                return; // 정답이면 여기서 바로 종료
-            }
         }
 
         private void StartGame()
@@ -236,11 +216,31 @@ namespace OneMind
                 return;
             }
 
-            
 
             // 시간 감소 (정답이 아닐 경우에만 시간 카운트)
             _timeLeftTicks--;
             pgrTime.Value = MaxTicks - _timeLeftTicks; // 프로그레스 바 갱신
+
+            //  정답 체크 
+            bool isCorrect = false;
+            try
+            {
+                isCorrect = _recognizer.ComparePlayers();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("정답 비교 오류: " + ex.Message);
+            }
+           
+
+            if (isCorrect) // 정답인 경우
+            {
+                _timer.Stop();
+                _score++;            
+                _lastCorrect = true; // 정답 처리
+                FinishQuestion();
+                return; // 정답이면 여기서 바로 종료
+            }
 
             // 시간 초과 체크
             if (_timeLeftTicks <= 0)
