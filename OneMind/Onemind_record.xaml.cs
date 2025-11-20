@@ -19,7 +19,8 @@ namespace OneMind
     
     public partial class Onemind_record : Window
     {
-        private readonly string connectionString = @"\Server=localhost\\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;\";
+        private string _connStr = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
+
         public class Result
         {
             public string UserID { get; set; }
@@ -29,6 +30,7 @@ namespace OneMind
         public Onemind_record()
         {
             InitializeComponent();
+            this.Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -42,7 +44,7 @@ namespace OneMind
             List<Result> userList = new List<Result>();
 
             // using 블록을 사용하여 SqlConnection을 안전하게 닫고 리소스를 해제합니다.
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (SqlConnection connection = new SqlConnection(_connStr))
             {
                 try
                 {
@@ -50,7 +52,11 @@ namespace OneMind
                     connection.Open();
 
                     // 2. SQL 쿼리 정의: 이미지에서 확인된 정확한 컬럼 이름(Word_ID, Category_ID, Game_Word)을 사용합니다.
-                    string sql = "SELECT * FROM GAME_RESULT";
+                    string sql = @"
+                          SELECT User_ID, Category_ID, Score, Play_Date 
+                          FROM GAME_RESULT 
+                          ORDER BY Score desc, Result_ID
+                            ";
 
                     using (SqlCommand command = new SqlCommand(sql, connection))
                     {
@@ -71,7 +77,7 @@ namespace OneMind
                     }
 
                     // 4. DataGrid에 데이터 목록 바인딩 (XAML의 dataGridUsers 참조)
-                    ResultDataGrid.ItemsSource = userList;
+                    //ResultDataGrid.ItemsSource = userList;
                 }
                 catch (Exception ex)
                 {
@@ -83,8 +89,6 @@ namespace OneMind
                 }
             }
         }
-
-
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             MainWindow mainWindow = new MainWindow();
