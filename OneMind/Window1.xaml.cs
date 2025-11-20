@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace OneMind
+namespace OneMind 
 {
     public partial class Window1 : Window
     {
@@ -170,9 +170,9 @@ namespace OneMind
                     }
                     _timer.Start(); // 제시어 복구 후 타이머 재개  
                 };
-                resumeDelayTimer.Start();
+                resumeDelayTimer.Start(); 
 
-                
+
             }
 
         }
@@ -228,7 +228,7 @@ namespace OneMind
             }
            
 
-            if (isCorrect)
+            if (isCorrect) // 정답인 경우
             {
                 _timer.Stop();
                 _score++;            
