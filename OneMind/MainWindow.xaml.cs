@@ -21,21 +21,22 @@ namespace OneMind
 {
     public partial class MainWindow : Window
     {
+        Recognize recognizer;
         public MainWindow()
         {
             InitializeComponent();
+            recognizer = new Recognize();
             //testcode
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
             // Recognize 인스턴스를 메인에서 생성해서 Window1에 주입(전달)
-            Recognize recognizer = new Recognize();
 
             // 사용자 입력/선택 값 가져오기
             string teamName = NicknameBox.Text.Trim();
             //string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            int categoryName = CategoryBox.SelectedIndex;
+            int categoryName = CategoryBox.SelectedIndex + 1;
 
             if (string.IsNullOrWhiteSpace(NicknameBox.Text))
             {
