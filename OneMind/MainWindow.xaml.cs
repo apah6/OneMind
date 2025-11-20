@@ -44,6 +44,7 @@ namespace OneMind
                 return;  // 진행 중단
             }
 
+
             //if (int.(categoryName))
             //{
             //    MessageBox.Show("카테고리를 선택하세요.");

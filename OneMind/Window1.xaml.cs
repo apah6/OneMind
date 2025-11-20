@@ -386,10 +386,10 @@ namespace OneMind
                                          ? string.Join(",", _usedQuestionIds)
                                          : "0";
                     string sql = $@"
-                SELECT TOP 1 Game_Word_ID, Game_Word
+                SELECT TOP 1 Word_ID, Game_Word
                 FROM GAME_WORD
                 WHERE Category_ID = @categoryId 
-                  AND Game_Word_ID NOT IN ({notInClause})
+                  AND Word_ID NOT IN ({notInClause})
                 ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
