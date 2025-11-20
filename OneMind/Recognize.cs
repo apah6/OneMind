@@ -217,8 +217,10 @@ public class Recognize
                 kinectsensor.DepthFrameReady -= KinectSensor_DepthFrameReady;
                 kinectsensor.SkeletonFrameReady -= KinectSensor_SkeletonFrameReady;
 
+                kinectsensor.Stop();
                 kinectsensor = null;
             }
+            
         }
         catch (Exception ex)
         {

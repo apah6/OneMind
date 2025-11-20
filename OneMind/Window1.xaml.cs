@@ -230,7 +230,7 @@ namespace OneMind
 
             if (isCorrect)
             {
-                _timer.Stop();
+                //_timer.Stop();
                 _score++;            
                 _lastCorrect = true; // 정답 처리
                 FinishQuestion();
