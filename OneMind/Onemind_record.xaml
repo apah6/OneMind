@@ -5,108 +5,190 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OneMind"
         mc:Ignorable="d"
-        Title="Onemind" Height="600" Width="960">
-    <Grid Background="Black"> 
-        <TextBlock
-            HorizontalAlignment="Center"
-            Margin="0,40,0,0"
-            Text="게임 결과"
-            VerticalAlignment="Top"
-            FontSize="40"
-            Foreground="#E0E0FF" FontWeight="Bold"
-            FontFamily="Segoe UI" />
-        
-        <Border
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top"
-            Width="640"
-            Height="270"  Margin="0,110,0,0"
-            CornerRadius="15" 
-            Background="#18FFFFFF"  BorderBrush="#8A2BE2" 
-            BorderThickness="3">
-            
-            <Border.Effect>
-                <DropShadowEffect 
-                    ShadowDepth="0" 
-                    Color="White" 
-                    Opacity="0.15" 
-                    BlurRadius="15"/>
-            </Border.Effect>
-            
-            <DataGrid
-                x:Name="ResultDataGrid"
-                AutoGenerateColumns="True"
-                IsReadOnly="True"
-                Margin="10,10,10,10"
-                HeadersVisibility="Column"
-                GridLinesVisibility="None"
-                Background="Transparent"
-                BorderThickness="0"
-                RowHeaderWidth="0"
-                Foreground="#E0E0FF">
-                
-                <DataGrid.Resources>
-                    <Style TargetType="{x:Type DataGridColumnHeader}">
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="FontWeight" Value="SemiBold"/>
-                        <Setter Property="Foreground" Value="#C0C0FF"/>
-                    </Style>
-                    <Style TargetType="{x:Type DataGridRow}">
-                        <Setter Property="Background" Value="Transparent"/>
-                    </Style>
-                    <Style TargetType="{x:Type DataGridCell}">
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="10,5,10,5"/>
-                    </Style>
-                </DataGrid.Resources>
-            </DataGrid>
-        </Border>
-        
-        <Button
-            Content="돌아가기"
-            HorizontalAlignment="Left"
-            Margin="680,410,0,0" 
-            VerticalAlignment="Top"
-            Click="Button_Click"
-            FontSize="16"
-            Width="120"
-            Height="35"
-            FontWeight="SemiBold"
-            Background="#8A2BE2" Foreground="White"
-            BorderThickness="0">
-            
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="5"
-                                        Padding="{TemplateBinding Padding}">
-                                    <Border.Effect>
-                                        <DropShadowEffect 
-                                            ShadowDepth="0" 
-                                            Color="#8A2BE2" 
-                                            Opacity="0.7" 
-                                            BlurRadius="15"/> </Border.Effect>
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#A55EE8"/>
-                            <Setter Property="Effect">
-                                <Setter.Value>
-                                    <DropShadowEffect ShadowDepth="0" Color="#A55EE8" Opacity="1.0" BlurRadius="25"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
-       
+        Title="Onemind" Height="600" Width="960"
+        WindowStartupLocation="CenterScreen"
+        Background="#0F172A">
+
+    <Window.Resources>
+        <Color x:Key="PrimaryColor">#6366F1</Color>
+        <Color x:Key="PrimaryDarkColor">#4F46E5</Color>
+        <Color x:Key="AccentColor">#22D3EE</Color>
+        <Color x:Key="CardBgColor">#111827</Color>
+        <Color x:Key="TextMainColor">#E5E7EB</Color>
+        <Color x:Key="TextSubColor">#9CA3AF</Color>
+
+        <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource CardBgColor}"/>
+        <SolidColorBrush x:Key="TextMainBrush" Color="{StaticResource TextMainColor}"/>
+        <SolidColorBrush x:Key="TextSubBrush" Color="{StaticResource TextSubColor}"/>
+        <SolidColorBrush x:Key="BorderBaseBrush" Color="#334155"/>
+
+        <Style x:Key="RoundedButton" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource TextMainBrush}"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource PrimaryColor}" Offset="0"/>
+                        <GradientStop Color="{StaticResource PrimaryDarkColor}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="14">
+                            <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RecordReturnButton" TargetType="Button" BasedOn="{StaticResource RoundedButton}">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Width" Value="160"/>
+            <Setter Property="Height" Value="48"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="ButtonBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="14">
+                            <ContentPresenter 
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="ButtonBorder" Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource PrimaryDarkColor}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource PrimaryColor}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect ShadowDepth="0" Color="#6366F1" Opacity="0.5" BlurRadius="15"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <Grid>
+        <Grid>
+            <Ellipse
+                Width="620"
+                Height="620"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="-200,-180,0,0"
+                Fill="#6C63FF"
+                Opacity="0.22" />
+
+            <Ellipse
+                Width="760"
+                Height="760"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,-240,-220"
+                Fill="#14B8A6"
+                Opacity="0.18" />
+        </Grid>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                Text="게임 결과"
+                FontSize="44"
+                Foreground="{StaticResource TextMainBrush}" 
+                FontWeight="Bold"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,40,0,20"/>
+
+            <Border Grid.Row="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Width="640"
+                Height="360"
+                CornerRadius="24"
+                Background="{StaticResource CardBgBrush}" 
+                BorderBrush="{StaticResource BorderBaseBrush}" 
+                BorderThickness="2"
+                Padding="15">
+
+                <Border.Effect>
+                    <DropShadowEffect 
+                        ShadowDepth="0" 
+                        Color="#6366F1" 
+                        Opacity="0.1" 
+                        BlurRadius="20"/>
+                </Border.Effect>
+
+                <DataGrid
+                    x:Name="ResultDataGrid"
+                    AutoGenerateColumns="True"
+                    IsReadOnly="True"
+                    HeadersVisibility="Column"
+                    GridLinesVisibility="None"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    RowHeaderWidth="0"
+                    Foreground="{StaticResource TextMainBrush}">
+
+                    <DataGrid.Resources>
+                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSubBrush}"/>
+                            <Setter Property="FontSize" Value="18"/>
+                            <Setter Property="Height" Value="35"/>
+                        </Style>
+                        <Style TargetType="{x:Type DataGridRow}">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Height" Value="40"/>
+                        </Style>
+                        <Style TargetType="{x:Type DataGridCell}">
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="Padding" Value="10,0"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#1F2937"/>
+                                    <Setter Property="Foreground" Value="{StaticResource TextMainBrush}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Resources>
+                </DataGrid>
+            </Border>
+
+            <Button Grid.Row="2"
+                x:Name="ExitButton"
+                Content="돌아가기"
+                HorizontalAlignment="Right"   VerticalAlignment="Top"
+                Margin="0,20,160,40"           Style="{StaticResource RecordReturnButton}"
+                Click="Button_Click"/>
+
+        </Grid>
     </Grid>
 </Window>
