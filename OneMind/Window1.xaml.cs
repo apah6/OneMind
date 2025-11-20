@@ -11,9 +11,9 @@ namespace OneMind
         private DispatcherTimer _timer;
         private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
 
-        // 시간을 5초가 아니라 0.1초 단위의 '틱'으로 관리 (5초 = 50틱)
-        private int _timeLeftTicks = 50;
-        private const int MaxTicks = 50; // 5초 기준
+        // 시간을 3초가 아니라 0.1초 단위의 '틱'으로 관리 (3초 = 30틱)
+        private int _timeLeftTicks = 30;
+        private const int MaxTicks = 30; // 3초 기준
 
         private bool _gameRunning = false;
         private bool _gameInitialized = false;
@@ -245,7 +245,7 @@ namespace OneMind
         {
             // 중복 실행 방지
             if (_recordOpened)
-            {
+            { 
                 return;
             }
             _recordOpened = true;
