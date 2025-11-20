@@ -34,6 +34,7 @@
             </RadialGradientBrush>
         </Grid.Background>
 
+      
         <Border Background="#15192B" 
                 BorderThickness="2" 
                 CornerRadius="20"
@@ -86,7 +87,7 @@
                 Padding="5">
             <Grid>
                 <ProgressBar x:Name="pgrTime"
-                             Maximum="3"
+                             Maximum="50"
                              Value="0"
                              Background="Transparent"
                              BorderThickness="0"
@@ -202,7 +203,7 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
-
+        
         <Grid HorizontalAlignment="Center" 
               VerticalAlignment="Top"
               Width="900"
@@ -241,18 +242,14 @@
                         </LinearGradientBrush>
                     </Border.BorderBrush>
 
-                    <Grid>
-                        <Image x:Name="imgPlayer1" 
-                               Stretch="UniformToFill" 
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Margin="3"/>
-                        <Border Background="#00FFFF" 
-                                Opacity="0." 
-                                CornerRadius="17"/>
-                    </Grid>
+                    <Border CornerRadius="20" ClipToBounds="True" Margin="3">
+                        <Image x:Name="imgPlayer1"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
                 </Border>
             </Grid>
-
+            
             <Grid Grid.Column="2">
                 <Border Background="#1A1F30"
                         BorderBrush="#FF00AA"
@@ -281,15 +278,11 @@
                         </LinearGradientBrush>
                     </Border.BorderBrush>
 
-                    <Grid>
-                        <Image x:Name="imgPlayer2" 
-                               Stretch="UniformToFill" 
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Margin="3"/>
-                        <Border Background="#FF00AA" 
-                                Opacity="0" 
-                                CornerRadius="17"/>
-                    </Grid>
+                    <Border CornerRadius="20" ClipToBounds="True" Margin="3">
+                        <Image x:Name="imgPlayer2"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
                 </Border>
             </Grid>
         </Grid>
@@ -333,5 +326,6 @@
                        Foreground="#FF00AA"/>
             </Border>
         </Grid>
+
     </Grid>
 </Window>
