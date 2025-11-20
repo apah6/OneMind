@@ -34,7 +34,8 @@ namespace OneMind
 
             // 사용자 입력/선택 값 가져오기
             string teamName = NicknameBox.Text.Trim();
-            string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            //string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
+            int categoryName = CategoryBox.SelectedIndex;
 
             if (string.IsNullOrWhiteSpace(NicknameBox.Text))
             {
@@ -42,11 +43,11 @@ namespace OneMind
                 return;  // 진행 중단
             }
 
-            if (string.IsNullOrEmpty(categoryName))
-            {
-                MessageBox.Show("카테고리를 선택하세요.");
-                return;
-            }
+            //if (int.(categoryName))
+            //{
+            //    MessageBox.Show("카테고리를 선택하세요.");
+            //    return;
+            //}
 
             Window1 gameWindow = new Window1(recognizer, teamName, categoryName); // 생성자 주입
             gameWindow.Show();

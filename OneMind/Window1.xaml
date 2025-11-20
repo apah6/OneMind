@@ -86,7 +86,7 @@
                 Padding="5">
             <Grid>
                 <ProgressBar x:Name="pgrTime"
-                             Maximum="3"
+                             Maximum="50"
                              Value="0"
                              Background="Transparent"
                              BorderThickness="0"
@@ -247,7 +247,7 @@
                                RenderOptions.BitmapScalingMode="HighQuality"
                                Margin="3"/>
                         <Border Background="#00FFFF" 
-                                Opacity="0.05" 
+                                Opacity="0." 
                                 CornerRadius="17"/>
                     </Grid>
                 </Border>
@@ -287,7 +287,7 @@
                                RenderOptions.BitmapScalingMode="HighQuality"
                                Margin="3"/>
                         <Border Background="#FF00AA" 
-                                Opacity="0.05" 
+                                Opacity="0" 
                                 CornerRadius="17"/>
                     </Grid>
                 </Border>
