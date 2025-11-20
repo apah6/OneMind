@@ -238,7 +238,7 @@ namespace OneMind
                 _timer.Stop();
                 _score++;            
                 _lastCorrect = true; // 정답 처리
-                FinishQuestion();
+                //FinishQuestion();
                 return; // 정답이면 여기서 바로 종료
             }
 
