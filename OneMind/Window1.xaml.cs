@@ -10,6 +10,7 @@ namespace OneMind
     {
         private DispatcherTimer _timer;
         private DispatcherTimer _detectTimer; // 플레이어 감지용 타이머
+        private List<DispatcherTimer> _tempTimers = new List<DispatcherTimer>();
 
         // 시간을 3초가 아니라 0.1초 단위의 '틱'으로 관리 (3초 = 30틱)
         private int _timeLeftTicks = 30;
@@ -123,6 +124,13 @@ namespace OneMind
                     MessageBox.Show("Kinect 종료 오류: " + ex.Message);
                 }
             }
+
+            foreach (var t in _tempTimers)
+            {
+                try { t.Stop(); }
+                catch { }
+            }
+            _tempTimers.Clear();
         }
 
         private void CheckPlayersDetected(object sender, EventArgs e)
@@ -169,7 +177,9 @@ namespace OneMind
                         lblKeyword.Content = _currentQuestionText;
                     }
                     _timer.Start(); // 제시어 복구 후 타이머 재개  
+                    _tempTimers.Remove(resumeDelayTimer);
                 };
+                _tempTimers.Add(resumeDelayTimer);
                 resumeDelayTimer.Start(); 
 
 
@@ -262,7 +272,7 @@ namespace OneMind
                     _recognizer.CloseKinect();
                 }
                 catch (Exception ex)
-                { 
+                {
                     MessageBox.Show("Kinect 종료 오류: " + ex.Message);
                 }
             }
@@ -278,8 +288,13 @@ namespace OneMind
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             // 버튼으로 중단 시에도 안전하게 정리
-            DisposeGameTimer();
-            DisposeDetectTimer();
+            
+
+            foreach (var t in _tempTimers)
+            {
+                try { t.Stop(); }
+                catch { }
+            }
 
             _gameRunning = false;
             _currentQuestionText = null;
@@ -323,7 +338,9 @@ namespace OneMind
             {
                 delayTimer.Stop();
                 LoadNextQuestion();
+                _tempTimers.Remove(delayTimer);
             };
+            _tempTimers.Add(delayTimer);
             delayTimer.Start();
            
 
