@@ -204,11 +204,9 @@ namespace OneMind
         private void Timer_Tick(object sender, EventArgs e)
         {
             if (!_gameRunning)
-            {
                 return;
-            }
 
-            // 플레이어 감지 체크 (이탈 시 일시 정지)
+            // 플레이어 감지 안 될 때 정지
             if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected())
             {
                 lblKeyword.Content = "플레이어 재인식 중...";
@@ -216,37 +214,29 @@ namespace OneMind
                 return;
             }
 
-
-            // 시간 감소 (정답이 아닐 경우에만 시간 카운트)
+            // 시간 감소
             _timeLeftTicks--;
-            pgrTime.Value = MaxTicks - _timeLeftTicks; // 프로그레스 바 갱신
+            pgrTime.Value = MaxTicks - _timeLeftTicks;
 
-            //  정답 체크 
-            bool isCorrect = false;
+            // 정답인지 체크 → 즉시 반응하지 않고, flag만 저장
             try
             {
-                isCorrect = _recognizer.ComparePlayers();
+                _lastCorrect = _recognizer.ComparePlayers();
             }
             catch (Exception ex)
             {
                 MessageBox.Show("정답 비교 오류: " + ex.Message);
             }
-           
 
-            if (isCorrect) // 정답인 경우
-            {
-                _timer.Stop();
-                _score++;            
-                _lastCorrect = true; // 정답 처리
-                //FinishQuestion();
-                return; // 정답이면 여기서 바로 종료
-            }
-
-            // 시간 초과 체크
+            // 시간 종료
             if (_timeLeftTicks <= 0)
             {
                 _timer.Stop();
-                _lastCorrect = false; // 시간 초과로 오답 처리
+
+                // 5초가 끝난 시점에서 점수 반영
+                if (_lastCorrect)
+                    _score++;
+
                 FinishQuestion();
             }
         }
