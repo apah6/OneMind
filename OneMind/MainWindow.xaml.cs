@@ -53,7 +53,7 @@ namespace OneMind
 
             Window1 gameWindow = new Window1(recognizer, teamName, categoryName); // 생성자 주입
             gameWindow.Show();
-            this.Hide();                        // 메인창 숨기기
+            this.Close();                        // 메인창 숨기기
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
