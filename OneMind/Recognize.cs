@@ -200,8 +200,6 @@ public class Recognize
             {
                 players.Update(trackedSkeletons);
             }
-
-            // 크롭 관련 이벤트/메서드를 제거했으므로 추가 동작 없음
         }
     }
 
