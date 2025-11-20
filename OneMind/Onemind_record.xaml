@@ -37,7 +37,7 @@
                 x:Name="ResultDataGrid"
                 AutoGenerateColumns="True"
                 IsReadOnly="True"
-                Margin="10,10,10,10"
+                Margin="10,8,10,12"
                 HeadersVisibility="Column"
                 GridLinesVisibility="None"
                 Background="Transparent"
