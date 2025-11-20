@@ -34,6 +34,7 @@
             </RadialGradientBrush>
         </Grid.Background>
 
+        <!-- 제시어 -->
         <Border Background="#15192B" 
                 BorderThickness="2" 
                 CornerRadius="20"
@@ -73,6 +74,7 @@
             </Grid>
         </Border>
 
+        <!-- 타이머 ProgressBar -->
         <Border Background="#0F1322"
                 BorderBrush="#00FF88"
                 BorderThickness="2"
@@ -110,6 +112,7 @@
             </Grid>
         </Border>
 
+        <!-- 점수 -->
         <Border Background="#1A1F30"
                 BorderBrush="#00FF88"
                 BorderThickness="2"
@@ -135,6 +138,7 @@
             </StackPanel>
         </Border>
 
+        <!-- 게임 중단 버튼 -->
         <Button x:Name="btnStop"
                 Content="⏹ 게임 중단" 
                 Width="150"
@@ -203,6 +207,7 @@
             </Button.Template>
         </Button>
 
+        <!-- PLAYER 화면 영역 -->
         <Grid HorizontalAlignment="Center" 
               VerticalAlignment="Top"
               Width="900"
@@ -213,6 +218,7 @@
                 <ColumnDefinition Width="420" />
             </Grid.ColumnDefinitions>
 
+            <!-- PLAYER 1 -->
             <Grid Grid.Column="0">
                 <Border Background="#1A1F30"
                         BorderBrush="#00FFFF"
@@ -238,21 +244,19 @@
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Color="#00FFFF" Offset="0"/>
                             <GradientStop Color="#0088FF" Offset="1"/>
-                        </LinearGradientBrush>
+                            </GradientStop>
                     </Border.BorderBrush>
 
-                    <Grid>
-                        <Image x:Name="imgPlayer1" 
-                               Stretch="UniformToFill" 
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Margin="3"/>
-                        <Border Background="#00FFFF" 
-                                Opacity="0." 
-                                CornerRadius="17"/>
-                    </Grid>
+                    <!-- Image 둥글게 처리 -->
+                    <Border CornerRadius="20" ClipToBounds="True" Margin="3">
+                        <Image x:Name="imgPlayer1"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
                 </Border>
             </Grid>
 
+            <!-- PLAYER 2 -->
             <Grid Grid.Column="2">
                 <Border Background="#1A1F30"
                         BorderBrush="#FF00AA"
@@ -281,19 +285,17 @@
                         </LinearGradientBrush>
                     </Border.BorderBrush>
 
-                    <Grid>
-                        <Image x:Name="imgPlayer2" 
-                               Stretch="UniformToFill" 
-                               RenderOptions.BitmapScalingMode="HighQuality"
-                               Margin="3"/>
-                        <Border Background="#FF00AA" 
-                                Opacity="0" 
-                                CornerRadius="17"/>
-                    </Grid>
+                    <!-- Image 둥글게 처리 -->
+                    <Border CornerRadius="20" ClipToBounds="True" Margin="3">
+                        <Image x:Name="imgPlayer2"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Border>
                 </Border>
             </Grid>
         </Grid>
 
+        <!-- PLAYER 상태 라벨 -->
         <Grid HorizontalAlignment="Center" 
               VerticalAlignment="Top" 
               Margin="0,673,0,0"
