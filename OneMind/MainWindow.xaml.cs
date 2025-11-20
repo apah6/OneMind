@@ -36,7 +36,7 @@ namespace OneMind
             // 사용자 입력/선택 값 가져오기
             string teamName = NicknameBox.Text.Trim();
             //string categoryName = (CategoryBox.SelectedItem as ComboBoxItem)?.Content.ToString();
-            int categoryName = CategoryBox.SelectedIndex;
+            int categoryName = CategoryBox.SelectedIndex + 1;
 
             if (string.IsNullOrWhiteSpace(NicknameBox.Text))
             {

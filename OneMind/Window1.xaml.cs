@@ -310,7 +310,7 @@ namespace OneMind
                     conn.Open();
 
                     string sql = @"
-                SELECT TOP (@cnt) Game_Word_ID, Game_Word
+                SELECT TOP (@cnt) Word_ID, Game_Word
                 FROM GAME_WORD
                 WHERE Category_ID = @categoryId
                 ORDER BY NEWID()";
