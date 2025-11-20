@@ -19,7 +19,7 @@ namespace OneMind
     
     public partial class Onemind_record : Window
     {
-        private readonly string connectionString = @"\Server=localhost\\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;\";
+        private string connectionString = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
         public class Result
         {
             public string UserID { get; set; }
@@ -35,6 +35,7 @@ namespace OneMind
         {
             // ReadUserData 함수를 호출하여 데이터를 로드합니다.
             ReadUserData();
+            
         }
 
         private void ReadUserData()
@@ -50,7 +51,7 @@ namespace OneMind
                     connection.Open();
 
                     // 2. SQL 쿼리 정의: 이미지에서 확인된 정확한 컬럼 이름(Word_ID, Category_ID, Game_Word)을 사용합니다.
-                    string sql = "SELECT * FROM GAME_RESULT";
+                    string sql = "SELECT UserID, Category_ID, Score FROM GAME_RESULT";
 
                     using (SqlCommand command = new SqlCommand(sql, connection))
                     {
