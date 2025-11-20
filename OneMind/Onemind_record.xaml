@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OneMind"
         mc:Ignorable="d"
-        Title="Onemind" Height="600" Width="960"
+        Title="One mind" Height="600" Width="960"
         WindowStartupLocation="CenterScreen"
-        Background="#0F172A">
-
+        Background="#0F172A"
+        Loaded="MainWindow_Loaded">
     <Window.Resources>
         <Color x:Key="PrimaryColor">#6366F1</Color>
         <Color x:Key="PrimaryDarkColor">#4F46E5</Color>
@@ -91,22 +91,16 @@
     <Grid>
         <Grid>
             <Ellipse
-                Width="620"
-                Height="620"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Top"
+                Width="620" Height="620"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="-200,-180,0,0"
-                Fill="#6C63FF"
-                Opacity="0.22" />
+                Fill="#6C63FF" Opacity="0.22" />
 
             <Ellipse
-                Width="760"
-                Height="760"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
+                Width="760" Height="760"
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Margin="0,0,-240,-220"
-                Fill="#14B8A6"
-                Opacity="0.18" />
+                Fill="#14B8A6" Opacity="0.18" />
         </Grid>
 
         <Grid>
@@ -127,66 +121,72 @@
 
             <Border Grid.Row="1"
                 HorizontalAlignment="Center"
-                VerticalAlignment="Top"
-                Width="640"
-                Height="360"
-                CornerRadius="24"
+                VerticalAlignment="Center" Width="700"  Height="360" CornerRadius="24"
                 Background="{StaticResource CardBgBrush}" 
                 BorderBrush="{StaticResource BorderBaseBrush}" 
                 BorderThickness="2"
                 Padding="15">
-
                 <Border.Effect>
                     <DropShadowEffect 
                         ShadowDepth="0" 
-                        Color="#6366F1" 
-                        Opacity="0.1" 
-                        BlurRadius="20"/>
+                        Color="{StaticResource PrimaryColor}" Opacity="0.2"  BlurRadius="30"/>
                 </Border.Effect>
 
                 <DataGrid
                     x:Name="ResultDataGrid"
-                    AutoGenerateColumns="True"
+                    AutoGenerateColumns="False" 
                     IsReadOnly="True"
                     HeadersVisibility="Column"
                     GridLinesVisibility="None"
-                    Background="Transparent"
-                    BorderThickness="0"
+                    Background="{StaticResource CardBgBrush}"  BorderThickness="0"
                     RowHeaderWidth="0"
-                    Foreground="{StaticResource TextMainBrush}">
-
+                    Foreground="{StaticResource TextMainBrush}"
+                    RowBackground="Transparent"
+                    AlternatingRowBackground="#1AFFFFFF" Grid.IsSharedSizeScope="True"
+                    Margin="0">
                     <DataGrid.Resources>
                         <Style TargetType="{x:Type DataGridColumnHeader}">
-                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Background" Value="#1AFFFFFF"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                             <Setter Property="Foreground" Value="{StaticResource TextSubBrush}"/>
                             <Setter Property="FontSize" Value="18"/>
-                            <Setter Property="Height" Value="35"/>
+                            <Setter Property="Height" Value="40"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Padding" Value="10,0"/>
                         </Style>
                         <Style TargetType="{x:Type DataGridRow}">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Height" Value="40"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
                         </Style>
                         <Style TargetType="{x:Type DataGridCell}">
                             <Setter Property="BorderThickness" Value="0"/>
                             <Setter Property="Padding" Value="10,0"/>
                             <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
                             <Style.Triggers>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#1F2937"/>
+                                    <Setter Property="Background" Value="#2A3348"/>
                                     <Setter Property="Foreground" Value="{StaticResource TextMainBrush}"/>
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
                     </DataGrid.Resources>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="팀명" Binding="{Binding UserID}" Width="2*" />
+                        <DataGridTextColumn Header="카테고리 ID" Binding="{Binding CategoryID}" Width="1.5*" />
+                        <DataGridTextColumn Header="점수" Binding="{Binding Score}" Width="1*" />
+                    </DataGrid.Columns>
                 </DataGrid>
             </Border>
 
             <Button Grid.Row="2"
                 x:Name="ExitButton"
                 Content="돌아가기"
-                HorizontalAlignment="Right"   VerticalAlignment="Top"
-                Margin="0,20,160,40"           Style="{StaticResource RecordReturnButton}"
+                HorizontalAlignment="Center" VerticalAlignment="Top"
+                Margin="0,30,0,40" Style="{StaticResource RecordReturnButton}"
                 Click="Button_Click"/>
 
         </Grid>
