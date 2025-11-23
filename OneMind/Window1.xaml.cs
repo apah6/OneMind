@@ -290,7 +290,7 @@ namespace OneMind
             // 버튼으로 중단 시에도 안전하게 정리
             DisposeGameTimer();
             DisposeDetectTimer();
-
+              
             _gameRunning = false;
             _currentQuestionText = null;
 
