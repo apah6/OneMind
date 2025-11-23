@@ -38,6 +38,10 @@ namespace OneMind
         private WriteableBitmap _leftBitmap;
         private WriteableBitmap _rightBitmap;
 
+        // 최적화: 픽셀 배열 재사용
+        private byte[] _leftPixels;
+        private byte[] _rightPixels;
+
         public Window1(Recognize recognizer, string teamName, int categoryName)
         {
             InitializeComponent();
@@ -91,11 +95,11 @@ namespace OneMind
             }
         }
 
-        // Kinect 영상 갱신 이벤트
+        // Kinect 영상 갱신 이벤트 (최적화 적용)
         private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap leftFrame, System.Windows.Media.Imaging.WriteableBitmap rightFrame)
         {
             // 이벤트가 UI 스레드에서 호출되지 않을 수 있으므로 안전하게 Dispatcher 사용
-            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
+            Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
             {
                 // 최초 한 번만 WriteableBitmap 생성
                 if (_leftBitmap == null || _rightBitmap == null)
@@ -104,25 +108,26 @@ namespace OneMind
                     _rightBitmap = new WriteableBitmap(rightFrame.PixelWidth, rightFrame.PixelHeight, rightFrame.DpiX, rightFrame.DpiY, rightFrame.Format, null);
                     imgPlayer1.Source = _leftBitmap;
                     imgPlayer2.Source = _rightBitmap;
+
+                    // 픽셀 배열 미리 생성 (GC 최소화)
+                    _leftPixels = new byte[leftFrame.PixelHeight * leftFrame.PixelWidth * (leftFrame.Format.BitsPerPixel / 8)];
+                    _rightPixels = new byte[rightFrame.PixelHeight * rightFrame.PixelWidth * (rightFrame.Format.BitsPerPixel / 8)];
                 }
 
-                // 픽셀 데이터 덮어쓰기 (새 Bitmap 생성 X)
+                // 픽셀 데이터 덮어쓰기 (새 배열 생성 X)
                 int strideLeft = leftFrame.PixelWidth * (leftFrame.Format.BitsPerPixel / 8);
                 int strideRight = rightFrame.PixelWidth * (rightFrame.Format.BitsPerPixel / 8);
 
-                byte[] pixelsLeft = new byte[leftFrame.PixelHeight * strideLeft];
-                byte[] pixelsRight = new byte[rightFrame.PixelHeight * strideRight];
-
-                leftFrame.CopyPixels(pixelsLeft, strideLeft, 0);
-                rightFrame.CopyPixels(pixelsRight, strideRight, 0);
+                leftFrame.CopyPixels(_leftPixels, strideLeft, 0);
+                rightFrame.CopyPixels(_rightPixels, strideRight, 0);
 
                 _leftBitmap.Lock();
-                _leftBitmap.WritePixels(new Int32Rect(0, 0, leftFrame.PixelWidth, leftFrame.PixelHeight), pixelsLeft, strideLeft, 0);
+                _leftBitmap.WritePixels(new Int32Rect(0, 0, leftFrame.PixelWidth, leftFrame.PixelHeight), _leftPixels, strideLeft, 0);
                 _leftBitmap.AddDirtyRect(new Int32Rect(0, 0, leftFrame.PixelWidth, leftFrame.PixelHeight));
                 _leftBitmap.Unlock();
 
                 _rightBitmap.Lock();
-                _rightBitmap.WritePixels(new Int32Rect(0, 0, rightFrame.PixelWidth, rightFrame.PixelHeight), pixelsRight, strideRight, 0);
+                _rightBitmap.WritePixels(new Int32Rect(0, 0, rightFrame.PixelWidth, rightFrame.PixelHeight), _rightPixels, strideRight, 0);
                 _rightBitmap.AddDirtyRect(new Int32Rect(0, 0, rightFrame.PixelWidth, rightFrame.PixelHeight));
                 _rightBitmap.Unlock();
             }));
@@ -315,7 +320,7 @@ namespace OneMind
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             // 버튼으로 중단 시에도 안전하게 정리
-            
+
 
             foreach (var t in _tempTimers)
             {
