@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace OneMind 
+namespace OneMind
 {
     public partial class Window1 : Window
     {
@@ -33,7 +34,11 @@ namespace OneMind
         private int _currentQuestionId; // 현재 문제의 ID 저장 (중복 출제 방지)
         private string _currentQuestionText; // 현재 문제의 텍스트 저장
 
-        public Window1(Recognize recognizer, String teamName, int categoryName)
+        // WriteableBitmap 미리 생성
+        private WriteableBitmap _leftBitmap;
+        private WriteableBitmap _rightBitmap;
+
+        public Window1(Recognize recognizer, string teamName, int categoryName)
         {
             InitializeComponent();
             InitializeDetectionCheck();
@@ -86,13 +91,40 @@ namespace OneMind
             }
         }
 
-        private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap left, System.Windows.Media.Imaging.WriteableBitmap right)
+        // Kinect 영상 갱신 이벤트
+        private void Recognizer_ColorHalvesUpdated(System.Windows.Media.Imaging.WriteableBitmap leftFrame, System.Windows.Media.Imaging.WriteableBitmap rightFrame)
         {
             // 이벤트가 UI 스레드에서 호출되지 않을 수 있으므로 안전하게 Dispatcher 사용
-            Dispatcher.BeginInvoke(new Action(() =>
+            Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
             {
-                imgPlayer1.Source = left;
-                imgPlayer2.Source = right;
+                // 최초 한 번만 WriteableBitmap 생성
+                if (_leftBitmap == null || _rightBitmap == null)
+                {
+                    _leftBitmap = new WriteableBitmap(leftFrame.PixelWidth, leftFrame.PixelHeight, leftFrame.DpiX, leftFrame.DpiY, leftFrame.Format, null);
+                    _rightBitmap = new WriteableBitmap(rightFrame.PixelWidth, rightFrame.PixelHeight, rightFrame.DpiX, rightFrame.DpiY, rightFrame.Format, null);
+                    imgPlayer1.Source = _leftBitmap;
+                    imgPlayer2.Source = _rightBitmap;
+                }
+
+                // 픽셀 데이터 덮어쓰기 (새 Bitmap 생성 X)
+                int strideLeft = leftFrame.PixelWidth * (leftFrame.Format.BitsPerPixel / 8);
+                int strideRight = rightFrame.PixelWidth * (rightFrame.Format.BitsPerPixel / 8);
+
+                byte[] pixelsLeft = new byte[leftFrame.PixelHeight * strideLeft];
+                byte[] pixelsRight = new byte[rightFrame.PixelHeight * strideRight];
+
+                leftFrame.CopyPixels(pixelsLeft, strideLeft, 0);
+                rightFrame.CopyPixels(pixelsRight, strideRight, 0);
+
+                _leftBitmap.Lock();
+                _leftBitmap.WritePixels(new Int32Rect(0, 0, leftFrame.PixelWidth, leftFrame.PixelHeight), pixelsLeft, strideLeft, 0);
+                _leftBitmap.AddDirtyRect(new Int32Rect(0, 0, leftFrame.PixelWidth, leftFrame.PixelHeight));
+                _leftBitmap.Unlock();
+
+                _rightBitmap.Lock();
+                _rightBitmap.WritePixels(new Int32Rect(0, 0, rightFrame.PixelWidth, rightFrame.PixelHeight), pixelsRight, strideRight, 0);
+                _rightBitmap.AddDirtyRect(new Int32Rect(0, 0, rightFrame.PixelWidth, rightFrame.PixelHeight));
+                _rightBitmap.Unlock();
             }));
         }
 
@@ -133,6 +165,7 @@ namespace OneMind
             _tempTimers.Clear();
         }
 
+        // 플레이어 인식 확인
         private void CheckPlayersDetected(object sender, EventArgs e)
         {
             if (_recognizer == null)
@@ -149,7 +182,7 @@ namespace OneMind
             // 두 명 모두 인식되면 게임 시작
             if (!_gameInitialized && player1 && player2)
             {
-                _gameInitialized = true; 
+                _gameInitialized = true;
                 StartGame();
                 LoadNextQuestion(); // 첫 문제 로드 및 타이머 시작
             }
@@ -180,11 +213,8 @@ namespace OneMind
                     _tempTimers.Remove(resumeDelayTimer);
                 };
                 _tempTimers.Add(resumeDelayTimer);
-                resumeDelayTimer.Start(); 
-
-
+                resumeDelayTimer.Start();
             }
-
         }
 
         private void InitializeTimer()
@@ -206,9 +236,6 @@ namespace OneMind
             _currentQuestion = 0;
 
             lblScore.Content = $"{_score} / {_maxQuestions}";
-
-    
-           
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -255,7 +282,7 @@ namespace OneMind
         {
             // 중복 실행 방지
             if (_recordOpened)
-            { 
+            {
                 return;
             }
             _recordOpened = true;
@@ -272,7 +299,7 @@ namespace OneMind
                     _recognizer.CloseKinect();
                 }
                 catch (Exception ex)
-                { 
+                {
                     MessageBox.Show("Kinect 종료 오류: " + ex.Message);
                 }
             }
@@ -290,21 +317,21 @@ namespace OneMind
             // 버튼으로 중단 시에도 안전하게 정리
             DisposeGameTimer();
             DisposeDetectTimer();
-              
+
             _gameRunning = false;
             _currentQuestionText = null;
 
             SaveScoreToDB(); // 점수 DB 저장    
 
             GoToRecordWindow(); // 기록 창으로 이동
-            
         }
+
         private void FinishQuestion()
         {
             _gameRunning = false;
 
             if (_currentQuestionId != 0) // 유효한 문제 ID가 있을 때만 처리
-            {               
+            {
                 if (!_usedQuestionIds.Contains(_currentQuestionId))
                 {
                     _usedQuestionIds.Add(_currentQuestionId); // 출제된 문제 ID 추가
@@ -316,7 +343,7 @@ namespace OneMind
             lblScore.Content = $"{_score} / {_maxQuestions}";
             lblScore.UpdateLayout();  // 즉시 갱신
 
-            _currentQuestion++; 
+            _currentQuestion++;
 
             if (_currentQuestion >= _maxQuestions)
             {
@@ -337,8 +364,6 @@ namespace OneMind
             };
             _tempTimers.Add(delayTimer);
             delayTimer.Start();
-           
-
         }
 
         private void EndGame()
@@ -380,7 +405,7 @@ namespace OneMind
 
         private void LoadNextQuestion()
         {
-            if (_currentQuestion >= _maxQuestions) 
+            if (_currentQuestion >= _maxQuestions)
             {
                 EndGame();
                 return;
@@ -405,7 +430,6 @@ namespace OneMind
                 ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
-                   // cmd.Parameters.AddWithValue("@cnt", 1);
                     cmd.Parameters.AddWithValue("@categoryId", Category_ID);
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
@@ -418,15 +442,15 @@ namespace OneMind
                             // 1번 컬럼 = Game_Word (string)
                             string questionText = reader.GetString(1);
 
-                            _currentQuestionId = questionId; 
+                            _currentQuestionId = questionId;
                             _currentQuestionText = questionText; // 제시어 저장
                             lblKeyword.Content = questionText;
 
                             _timeLeftTicks = MaxTicks;
-                            pgrTime.Value = 0; 
+                            pgrTime.Value = 0;
 
                             _gameRunning = true;
-                       
+
                             if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
                             {
                                 _timer.Start();
@@ -439,19 +463,18 @@ namespace OneMind
                         }
                         else
                         {
-                            lblKeyword.Content = "문제를 다 풀었습니다."; 
+                            lblKeyword.Content = "문제를 다 풀었습니다.";
 
                             DispatcherTimer finalDelayTimer = new DispatcherTimer();
                             finalDelayTimer.Interval = TimeSpan.FromSeconds(2); // 2초 지연 설정
                             finalDelayTimer.Tick += (s, e) =>
                             {
                                 finalDelayTimer.Stop();
-                                EndGame(); 
+                                EndGame();
                             };
                             finalDelayTimer.Start();
                         }
                     }
-                  
                 }
             }
 
