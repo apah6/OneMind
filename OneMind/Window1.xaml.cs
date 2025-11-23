@@ -315,8 +315,13 @@ namespace OneMind
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             // 버튼으로 중단 시에도 안전하게 정리
-            DisposeGameTimer();
-            DisposeDetectTimer();
+            
+
+            foreach (var t in _tempTimers)
+            {
+                try { t.Stop(); }
+                catch { }
+            }
 
             _gameRunning = false;
             _currentQuestionText = null;
@@ -423,10 +428,10 @@ namespace OneMind
                                          ? string.Join(",", _usedQuestionIds)
                                          : "0";
                     string sql = $@"
-                SELECT TOP 1 Game_Word_ID, Game_Word
+                SELECT TOP 1 Word_ID, Game_Word
                 FROM GAME_WORD
                 WHERE Category_ID = @categoryId 
-                  AND Game_Word_ID NOT IN ({notInClause})
+                  AND Word_ID NOT IN ({notInClause})
                 ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
