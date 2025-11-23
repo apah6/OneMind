@@ -41,6 +41,7 @@ namespace OneMind
         private void Onemind_record_Loaded(object sender, RoutedEventArgs e)
         {
             ReadUserData();
+            
         }
 
         private void ReadUserData()
