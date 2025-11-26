@@ -85,7 +85,7 @@ namespace OneMind
                 _rightBitmap.Unlock();
             }));
         }
-        
+
 
         // 플레이어 감지
         private void InitializeDetectionCheck()
@@ -134,7 +134,7 @@ namespace OneMind
                 lblKeyword.Content = "플레이어 대기 중...";
             }
         }
-      
+
 
         // 게임 시작/타이머
         private void StartGame()
@@ -174,7 +174,7 @@ namespace OneMind
             };
             _logicTimer.Start();
         }
-      
+
 
         // 문제 처리
         private void LoadNextQuestion()
@@ -271,7 +271,7 @@ namespace OneMind
             _tempTimers.Add(delayTimer);
             delayTimer.Start();
         }
-  
+
 
         // 게임 종료/점수 저장
         private void EndGame()
@@ -318,7 +318,7 @@ namespace OneMind
             record.Show();
             this.Close();
         }
- 
+
 
         // 타이머 정리
         private void DisposeAllTimers()
