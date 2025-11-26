@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Windows;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -427,17 +428,16 @@ namespace OneMind
                 {
                     conn.Open();
 
-                    // 이미 출제된 문제 ID들을 콤마로 연결 (예: "1,5,7")
-                    // 리스트가 비어있으면 "0"을 넣어 에러 방지
                     string notInClause = _usedQuestionIds.Count > 0
                                          ? string.Join(",", _usedQuestionIds)
                                          : "0";
+
                     string sql = $@"
-                SELECT TOP 1 Word_ID, Game_Word
-                FROM GAME_WORD
-                WHERE Category_ID = @categoryId 
-                  AND Word_ID NOT IN ({notInClause})
-                ORDER BY NEWID()";
+            SELECT TOP 1 Word_ID, Game_Word
+            FROM GAME_WORD
+            WHERE Category_ID = @categoryId 
+              AND Word_ID NOT IN ({notInClause})
+            ORDER BY NEWID()";
 
                     SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@categoryId", Category_ID);
@@ -446,20 +446,29 @@ namespace OneMind
                     {
                         if (reader.Read())
                         {
-                            // 0번 컬럼 = Game_Word_ID (int)
                             int questionId = reader.GetInt32(0);
-
-                            // 1번 컬럼 = Game_Word (string)
                             string questionText = reader.GetString(1);
 
                             _currentQuestionId = questionId;
-                            _currentQuestionText = questionText; // 제시어 저장
+                            _currentQuestionText = questionText;
                             lblKeyword.Content = questionText;
 
-                            _timeLeftTicks = MaxTicks;
+                            _timeLeftTicks = MaxTicks; // 게임 로직용
+                            _gameRunning = true;
+
+                            // ProgressBar 초기화
+                            pgrTime.Minimum = 0;
+                            pgrTime.Maximum = 1;
                             pgrTime.Value = 0;
 
-                            _gameRunning = true;
+                            // 부드러운 애니메이션 시작 (3초 동안)
+                            DoubleAnimation anim = new DoubleAnimation
+                            {
+                                From = 0,
+                                To = 1,
+                                Duration = TimeSpan.FromSeconds(3)
+                            };
+                            pgrTime.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty, anim);
 
                             if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
                             {
@@ -476,7 +485,7 @@ namespace OneMind
                             lblKeyword.Content = "문제를 다 풀었습니다.";
 
                             DispatcherTimer finalDelayTimer = new DispatcherTimer();
-                            finalDelayTimer.Interval = TimeSpan.FromSeconds(2); // 2초 지연 설정
+                            finalDelayTimer.Interval = TimeSpan.FromSeconds(2);
                             finalDelayTimer.Tick += (s, e) =>
                             {
                                 finalDelayTimer.Stop();
@@ -487,11 +496,11 @@ namespace OneMind
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 MessageBox.Show("문제 로딩 오류: " + ex.Message);
             }
         }
+
     }
 }
