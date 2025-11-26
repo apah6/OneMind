@@ -8,7 +8,7 @@
         Title="One mind" Height="600" Width="960"
         WindowStartupLocation="CenterScreen"
         Background="#0F172A"
-        Loaded="MainWindow_Loaded">
+        Loaded="Onemind_record_Loaded">
     <Window.Resources>
         <Color x:Key="PrimaryColor">#6366F1</Color>
         <Color x:Key="PrimaryDarkColor">#4F46E5</Color>
