@@ -12,27 +12,28 @@ namespace OneMind
     public partial class Window1 : Window
     {
         private Timer _logicTimer;
-        private DispatcherTimer _detectTimer;
+        private DispatcherTimer _detectTimer; // 플레이어 감지 타이머
         private List<DispatcherTimer> _tempTimers = new List<DispatcherTimer>();
 
         private int _timeLeftTicks = 30; // 0.1초 단위 (3초)
         private const int MaxTicks = 30;
-
-        private bool _gameRunning = false;
-        private bool _gameInitialized = false;
-        private int _currentQuestion = 0;
-        private int _maxQuestions = 10;
-        private bool _lastCorrect = false;
-        private int _score = 0;
-        private string TeamName;
-        private int Category_ID;
+         
+        private bool _gameRunning = false; // 게임 진행 상태
+        private bool _gameInitialized = false; // 게임 초기화 상태
+        private int _currentQuestion = 0; // 현재 문제 번호
+        private int _maxQuestions = 10; //  최대 문제 수
+        private bool _lastCorrect = false; // 마지막 정답 여부
+        private int _score = 0; // 점수
+        private string TeamName; // 팀 이름
+        private int Category_ID; // 카테고리 ID
         private string _connStr = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
         private bool _recordOpened = false;
         private Recognize _recognizer;
 
+        // / 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
         private List<int> _usedQuestionIds = new List<int>();
-        private int _currentQuestionId;
-        private string _currentQuestionText;
+        private int _currentQuestionId; // // 현재 문제의 ID 저장 (중복 출제 방지)
+        private string _currentQuestionText; 
 
         private WriteableBitmap _leftBitmap;
         private WriteableBitmap _rightBitmap;
@@ -98,15 +99,18 @@ namespace OneMind
 
         private void CheckPlayersDetected(object sender, EventArgs e)
         {
-            if (_recognizer == null) return;
+            if (_recognizer == null)
+            {
+                return;
+            }
 
-            bool player1 = _recognizer.IsPlayer1Detected();
-            bool player2 = _recognizer.IsPlayer2Detected();
+            bool player1 = _recognizer.IsPlayer1Detected(); // 플레이어 1 감지 여부
+            bool player2 = _recognizer.IsPlayer2Detected(); // 플레이어 2 감지 여부
 
-            lblPerceive1.Content = player1 ? "Player1 인식됨" : "대기 중...";
-            lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중...";
+            lblPerceive1.Content = player1 ? "Player1 인식됨" : "대기 중..."; // 플레이어 1 상태 업데이트
+            lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중..."; // 플레이어 2 상태 업데이트
 
-            if (!_gameInitialized && player1 && player2)
+            if (!_gameInitialized && player1 && player2) // 두 플레이어가 모두 감지되면 게임 시작
             {
                 _gameInitialized = true;
                 StartGame();
@@ -114,23 +118,26 @@ namespace OneMind
             }
             else
             {
-                ResumeTimerIfPlayersDetected();
+                ResumeTimerIfPlayersDetected(); // 플레이어가 감지되면 타이머 재개
             }
         }
 
         private void ResumeTimerIfPlayersDetected()
         {
-            if (!_gameRunning || _timeLeftTicks <= 0) return;
+            if (!_gameRunning || _timeLeftTicks <= 0) // 게임이 진행 중이 아니거나 시간이 다 된 경우
+            {
+                return;
+            }
 
-            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
+            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected()) // 두 플레이어가 모두 감지되면 타이머 재개
             {
                 lblKeyword.Content = _currentQuestionText ?? "게임 재개!";
-                if (_logicTimer != null && !_logicTimer.Enabled)
-                    _logicTimer.Start();
+                if (_logicTimer != null && !_logicTimer.Enabled) // 타이머가 멈춰있다면 재개
+                    _logicTimer.Start(); // 타이머 재개
             }
             else
             {
-                _logicTimer?.Stop();
+                _logicTimer?.Stop(); // 타이머 일시정지
                 lblKeyword.Content = "플레이어 대기 중...";
             }
         }
@@ -139,18 +146,18 @@ namespace OneMind
         // 게임 시작/타이머
         private void StartGame()
         {
-            _gameRunning = true;
-            _timeLeftTicks = MaxTicks;
+            _gameRunning = true; // 게임 진행 상태로 변경
+            _timeLeftTicks = MaxTicks; // 시간 초기화
 
             lblKeyword.Content = "게임 시작!";
             _score = 0;
             _currentQuestion = 0;
-            lblScore.Content = $"{_score} / {_maxQuestions}";
+            lblScore.Content = $"{_score} / {_maxQuestions}"; 
         }
 
         private void StartLogicTimer()
         {
-            if (_logicTimer != null)
+            if (_logicTimer != null) // 기존 타이머가 있으면 정리
             {
                 _logicTimer.Stop();
                 _logicTimer.Dispose();
@@ -159,16 +166,22 @@ namespace OneMind
             _logicTimer = new Timer(100);
             _logicTimer.Elapsed += (s, e) =>
             {
-                if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected()) return;
+                if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected()) // 플레이어가 감지되지 않으면 타이머 일시정지
+                {
+                    return;
+                }
 
-                _timeLeftTicks--;
+                _timeLeftTicks--; // 감지되면 시간 감소
 
                 try { _lastCorrect = _recognizer.ComparePlayers(); } catch { }
 
-                if (_timeLeftTicks <= 0)
+                if (_timeLeftTicks <= 0) // 시간이 다 되었을 때
                 {
-                    _logicTimer.Stop();
-                    if (_lastCorrect) _score++;
+                    _logicTimer.Stop(); // 타이머 정지
+                    if (_lastCorrect) 
+                    {
+                        _score++;
+                    }
                     Dispatcher.Invoke(() => FinishQuestion());
                 }
             };
@@ -179,7 +192,7 @@ namespace OneMind
         // 문제 처리
         private void LoadNextQuestion()
         {
-            if (_currentQuestion >= _maxQuestions)
+            if (_currentQuestion >= _maxQuestions) // 최대 문제 수 도달 시 게임 종료
             {
                 EndGame();
                 return;
@@ -250,13 +263,15 @@ namespace OneMind
 
         private void FinishQuestion()
         {
-            _gameRunning = false;
+            _gameRunning = false; // 문제 종료 상태로 변경
 
-            if (_currentQuestionId != 0 && !_usedQuestionIds.Contains(_currentQuestionId))
+            if (_currentQuestionId != 0 && !_usedQuestionIds.Contains(_currentQuestionId)) // 중복 출제 방지
+            {
                 _usedQuestionIds.Add(_currentQuestionId);
+            }
 
             _currentQuestion++;
-            lblScore.Content = $"{_score} / {_maxQuestions}";
+            lblScore.Content = $"{_score} / {_maxQuestions}"; // 점수 업데이트
 
             lblKeyword.Content = _lastCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
 
@@ -308,7 +323,10 @@ namespace OneMind
 
         private void GoToRecordWindow()
         {
-            if (_recordOpened) return;
+            if (_recordOpened) 
+            {
+                return;
+            }
             _recordOpened = true;
 
             DisposeAllTimers();
@@ -348,14 +366,14 @@ namespace OneMind
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var t in _tempTimers)
+            foreach (var t in _tempTimers) // 모든 임시 타이머 정지
             {
                 try { t.Stop(); }
                 catch { }
             }
 
-            _gameRunning = false;
-            _currentQuestionText = null;
+            _gameRunning = false; // 게임 종료 상태로 변경
+            _currentQuestionText = null; // 현재 문제 초기화
 
             SaveScoreToDB(); // 점수 DB 저장    
             GoToRecordWindow(); // 기록 창으로 이동
