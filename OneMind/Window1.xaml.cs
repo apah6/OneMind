@@ -17,23 +17,24 @@ namespace OneMind
 
         private int _timeLeftTicks = 30; // 0.1초 단위 (3초)
         private const int MaxTicks = 30;
-         
+
         private bool _gameRunning = false; // 게임 진행 상태
         private bool _gameInitialized = false; // 게임 초기화 상태
         private int _currentQuestion = 0; // 현재 문제 번호
-        private int _maxQuestions = 10; //  최대 문제 수
+        private int _maxQuestions = 10; // 최대 문제 수
         private bool _lastCorrect = false; // 마지막 정답 여부
         private int _score = 0; // 점수
+
         private string TeamName; // 팀 이름
         private int Category_ID; // 카테고리 ID
         private string _connStr = @"Server=localhost\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;";
         private bool _recordOpened = false;
         private Recognize _recognizer;
 
-        // / 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
+        // 이미 출제된 제시어 관리 (종료 후 재시작하면 다시 나오게)
         private List<int> _usedQuestionIds = new List<int>();
-        private int _currentQuestionId; // // 현재 문제의 ID 저장 (중복 출제 방지)
-        private string _currentQuestionText; 
+        private int _currentQuestionId; // 현재 문제의 ID 저장 (중복 출제 방지)
+        private string _currentQuestionText;
 
         private WriteableBitmap _leftBitmap;
         private WriteableBitmap _rightBitmap;
@@ -53,7 +54,6 @@ namespace OneMind
             Category_ID = categoryName;
         }
 
-        // Kinect 영상 처리
         private void Recognizer_ColorHalvesUpdated(WriteableBitmap leftFrame, WriteableBitmap rightFrame)
         {
             Dispatcher.BeginInvoke(DispatcherPriority.Render, new Action(() =>
@@ -87,8 +87,6 @@ namespace OneMind
             }));
         }
 
-
-        // 플레이어 감지
         private void InitializeDetectionCheck()
         {
             _detectTimer = new DispatcherTimer();
@@ -100,17 +98,15 @@ namespace OneMind
         private void CheckPlayersDetected(object sender, EventArgs e)
         {
             if (_recognizer == null)
-            {
                 return;
-            }
 
-            bool player1 = _recognizer.IsPlayer1Detected(); // 플레이어 1 감지 여부
-            bool player2 = _recognizer.IsPlayer2Detected(); // 플레이어 2 감지 여부
+            bool player1 = _recognizer.IsPlayer1Detected();
+            bool player2 = _recognizer.IsPlayer2Detected();
 
-            lblPerceive1.Content = player1 ? "Player1 인식됨" : "대기 중..."; // 플레이어 1 상태 업데이트
-            lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중..."; // 플레이어 2 상태 업데이트
+            lblPerceive1.Content = player1 ? "Player1 인식됨" : "대기 중...";
+            lblPerceive2.Content = player2 ? "Player2 인식됨" : "대기 중...";
 
-            if (!_gameInitialized && player1 && player2) // 두 플레이어가 모두 감지되면 게임 시작
+            if (!_gameInitialized && player1 && player2)
             {
                 _gameInitialized = true;
                 StartGame();
@@ -118,22 +114,19 @@ namespace OneMind
             }
             else
             {
-                ResumeTimerIfPlayersDetected(); // 플레이어가 감지되면 타이머 재개
+                ResumeTimerIfPlayersDetected(); // 플레이어 감지 시 타이머 재개
             }
         }
 
         private void ResumeTimerIfPlayersDetected()
         {
-            if (!_gameRunning || _timeLeftTicks <= 0) // 게임이 진행 중이 아니거나 시간이 다 된 경우
-            {
+            if (!_gameRunning || _timeLeftTicks <= 0)
                 return;
-            }
 
-            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected()) // 두 플레이어가 모두 감지되면 타이머 재개
+            if (_recognizer.IsPlayer1Detected() && _recognizer.IsPlayer2Detected())
             {
                 lblKeyword.Content = _currentQuestionText ?? "게임 재개!";
-                if (_logicTimer != null && !_logicTimer.Enabled) // 타이머가 멈춰있다면 재개
-                    _logicTimer.Start(); // 타이머 재개
+                _logicTimer?.Start(); // 타이머 재개
             }
             else
             {
@@ -143,56 +136,61 @@ namespace OneMind
         }
 
 
-        // 게임 시작/타이머
+
         private void StartGame()
         {
-            _gameRunning = true; // 게임 진행 상태로 변경
-            _timeLeftTicks = MaxTicks; // 시간 초기화
+            _gameRunning = true; // 게임 진행 상태
+            _timeLeftTicks = MaxTicks;
 
             lblKeyword.Content = "게임 시작!";
             _score = 0;
             _currentQuestion = 0;
-            lblScore.Content = $"{_score} / {_maxQuestions}"; 
+            lblScore.Content = $"{_score} / {_maxQuestions}";
         }
 
         private void StartLogicTimer()
         {
-            if (_logicTimer != null) // 기존 타이머가 있으면 정리
+            if (_logicTimer != null)
             {
                 _logicTimer.Stop();
                 _logicTimer.Dispose();
             }
 
+            _timeLeftTicks = MaxTicks;
+            pgrTime.Minimum = 0;
+            pgrTime.Maximum = MaxTicks;
+            pgrTime.Value = _timeLeftTicks;
+
             _logicTimer = new Timer(100);
             _logicTimer.Elapsed += (s, e) =>
             {
-                if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected()) // 플레이어가 감지되지 않으면 타이머 일시정지
-                {
+                if (!_recognizer.IsPlayer1Detected() || !_recognizer.IsPlayer2Detected()) // 플레이어 미감지 시 타이머 일시정지
                     return;
-                }
 
-                _timeLeftTicks--; // 감지되면 시간 감소
+                _timeLeftTicks--; 
+
+                Dispatcher.Invoke(() =>
+                {
+                    pgrTime.Value = _timeLeftTicks; // ProgressBar 동기화
+                });
 
                 try { _lastCorrect = _recognizer.ComparePlayers(); } catch { }
 
-                if (_timeLeftTicks <= 0) // 시간이 다 되었을 때
+                if (_timeLeftTicks <= 0) // 시간 종료
                 {
-                    _logicTimer.Stop(); // 타이머 정지
-                    if (_lastCorrect) 
-                    {
+                    _logicTimer.Stop();
+                    if (_lastCorrect)
                         _score++;
-                    }
                     Dispatcher.Invoke(() => FinishQuestion());
                 }
             };
             _logicTimer.Start();
         }
 
-
-        // 문제 처리
+   
         private void LoadNextQuestion()
         {
-            if (_currentQuestion >= _maxQuestions) // 최대 문제 수 도달 시 게임 종료
+            if (_currentQuestion >= _maxQuestions) // 모든 문제 출제 완료
             {
                 EndGame();
                 return;
@@ -224,19 +222,9 @@ namespace OneMind
                             lblKeyword.Content = _currentQuestionText;
 
                             _timeLeftTicks = MaxTicks;
-
-                            // ProgressBar 초기화
                             pgrTime.Minimum = 0;
-                            pgrTime.Maximum = 1;
-                            pgrTime.Value = 0;
-
-                            DoubleAnimation anim = new DoubleAnimation
-                            {
-                                From = 0,
-                                To = 1,
-                                Duration = TimeSpan.FromSeconds(3)
-                            };
-                            pgrTime.BeginAnimation(System.Windows.Controls.Primitives.RangeBase.ValueProperty, anim);
+                            pgrTime.Maximum = MaxTicks;
+                            pgrTime.Value = _timeLeftTicks;
 
                             StartLogicTimer();
                         }
@@ -263,16 +251,13 @@ namespace OneMind
 
         private void FinishQuestion()
         {
-            _gameRunning = false; // 문제 종료 상태로 변경
+            _gameRunning = false;
 
-            if (_currentQuestionId != 0 && !_usedQuestionIds.Contains(_currentQuestionId)) // 중복 출제 방지
-            {
+            if (_currentQuestionId != 0 && !_usedQuestionIds.Contains(_currentQuestionId))
                 _usedQuestionIds.Add(_currentQuestionId);
-            }
 
-            _currentQuestion++; // 문제 번호 증가
-            lblScore.Content = $"{_score} / {_maxQuestions}"; // 점수 업데이트
-
+            _currentQuestion++;
+            lblScore.Content = $"{_score} / {_maxQuestions}";
             lblKeyword.Content = _lastCorrect ? "정답입니다! (+1점)" : "오답입니다! (+0점)";
 
             DispatcherTimer delayTimer = new DispatcherTimer();
@@ -286,12 +271,12 @@ namespace OneMind
             _tempTimers.Add(delayTimer);
             delayTimer.Start();
         }
+    
 
-
-        // 게임 종료/점수 저장
+      
         private void EndGame()
         {
-            _gameRunning = false;
+            _gameRunning = false; // 게임 종료 상태
             lblKeyword.Content = "게임 종료! 점수 기록 중...";
             SaveScoreToDB();
             GoToRecordWindow();
@@ -323,12 +308,10 @@ namespace OneMind
 
         private void GoToRecordWindow()
         {
-            if (_recordOpened) 
-            {
+            if (_recordOpened)
                 return;
-            }
-            _recordOpened = true;
 
+            _recordOpened = true;
             DisposeAllTimers();
             _recognizer?.CloseKinect();
 
@@ -336,9 +319,9 @@ namespace OneMind
             record.Show();
             this.Close();
         }
+      
 
-
-        // 타이머 정리
+       
         private void DisposeAllTimers()
         {
             _logicTimer?.Stop();
@@ -352,6 +335,7 @@ namespace OneMind
             }
             _tempTimers.Clear();
         }
+     
 
         protected override void OnClosed(EventArgs e)
         {
@@ -360,23 +344,22 @@ namespace OneMind
             if (_recognizer != null)
             {
                 _recognizer.ColorHalvesUpdated -= Recognizer_ColorHalvesUpdated;
-                try { _recognizer.CloseKinect(); } catch { }
+                
             }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-            foreach (var t in _tempTimers) // 모든 임시 타이머 정지
+            foreach (var t in _tempTimers)
             {
-                try { t.Stop(); }
-                catch { }
+                try { t.Stop(); } catch { }
             }
 
-            _gameRunning = false; // 게임 종료 상태로 변경
-            _currentQuestionText = null; // 현재 문제 초기화
+            _gameRunning = false;
+            _currentQuestionText = null;
 
-            SaveScoreToDB(); // 점수 DB 저장    
-            GoToRecordWindow(); // 기록 창으로 이동
+            SaveScoreToDB();
+            GoToRecordWindow();
         }
     }
 }
